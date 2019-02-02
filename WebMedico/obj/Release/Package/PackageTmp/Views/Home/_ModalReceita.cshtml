@@ -1,0 +1,221 @@
+﻿@using IFarmacias.Models.Response;
+
+@model IFarmacias.Models.Response.RecipesResponse
+
+@{
+    bool isEdit = Model.IdRecipes > 0;
+    bool isReadonly = ViewBag.Readonly != null && ViewBag.Readonly == true;
+
+    HtmlString modalTitle;
+
+    if (isReadonly) { modalTitle = new HtmlString("Ver"); }
+    else if (isEdit) { modalTitle = new HtmlString("Editar"); }
+    else { modalTitle = new HtmlString("Inserir"); }
+}
+
+@*inicio Trello 1.8.3*@
+<style>
+    .mdbc-pickfile {
+        text-align: center;
+        padding: 10px 10px;
+    }
+
+    .mdbc-pickfile img {
+        border-radius: 50% !important;
+        min-height: 57%;
+    }
+
+    .mdbc-pickfile button {
+        margin: 0;
+        margin-top: -20px;
+        font-size: .55rem;
+        padding: .5rem .6rem !important;
+    }
+
+    .mdbc-pickfile button i {
+        font-size: .6rem !important;
+    }
+</style>
+@*fin Trello 1.8.3*@
+
+<div class="modal-dialog modal-lg" role="document">
+    <!--Content-->
+    <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+
+            <div class="btn-group mdbc-modal-action">
+                @if (isReadonly)
+                {
+                    @Ajax.ActionLink("edit", "_ModalEditReceita",
+                    new
+                    {
+                        idConsulta = ViewBag.idConsulta,
+                        idReceita = Model.IdRecipes
+                    },
+                    new AjaxOptions()
+                    {
+                        UpdateTargetId = "modalReceita",
+                        InsertionMode = InsertionMode.Replace,
+                        OnSuccess = "onModalLoaded",
+                        OnBegin = "onModalLoading"
+                    },
+                    new
+                    {
+                        @class = "material-icons",
+                        data_target = "#modalReceita"
+                    })
+
+                        <!--Trigger-->
+                    <a class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">more_vert</a>
+
+                        <!--Menu-->
+                        <div class="dropdown-menu dropdown-menu-right">
+                            @Ajax.ActionLink("Eliminar", "DeleteReceita",
+                        new
+                        {
+                            idConsulta = ViewBag.idConsulta,
+                            idReceita = Model.IdRecipes
+                        },
+                        new AjaxOptions()
+                        {
+                            UpdateTargetId = "panelReceitas",
+                            InsertionMode = InsertionMode.Replace,
+                            OnFailure = "onModalError",
+                            OnComplete = "onModalSubmited",
+                            OnBegin = "confirmAction"
+                        },
+                        new
+                        {
+                            data_toggle = "popover",
+                            data_placement = "bottom",
+                            data_content = "Tem certeza que deseja remover o receita?",
+                            title = "Confirmar",
+                            @class = "dropdown-item"
+                        })
+                        </div>
+                }
+                <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+            </div>
+            <h4 class="modal-title" id="myModalLabel">@modalTitle receita</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+            @using (Ajax.BeginForm("AddEditReceita", "Home",
+             new { idConsulta = ViewBag.idConsulta },
+             new AjaxOptions() { UpdateTargetId = "panelReceitas",InsertionMode = InsertionMode.Replace,OnFailure = "onModalError",OnSuccess = "onModalSubmited",OnBegin = "disableAll",OnComplete = "onModalLoaded"}, 
+             new { id = "_receita" }))
+            {
+                <h5><strong>Dados gerais da receita</strong></h5>
+                <br />
+                @Html.HiddenFor(x => x.IdRecipes, new { name = "IdRecipes", id = "IdRecipes" })
+                @Html.Hidden("RecipeImageStr", new { name = "RecipeImageStr", id = "RecipeImageStr" })
+                @Html.Hidden("FileHasBeenChanged", "false", new { name = "FileHasBeenChanged", id = "FileHasBeenChanged" })
+                @Html.Hidden("RecipeImageName", Model.RecipeImageName, new { name = "RecipeImageName", id = "RecipeImageName" });
+                <div class="col-11 col-centered">
+                    <div class="md-form" style="float:left;width:32%;;padding-right:2%;">
+                        @if (!isReadonly)
+                        {
+                            @Html.TextBoxFor(x => x.RecipeNumber, new { @class = "form-control" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.RecipeNumber, new { @class = "form-control", @readonly = true })
+                        }
+                        @Html.LabelFor(x => x.RecipeNumber)
+                    </div>
+                    <div class="md-form" style="float:left;width:32%;;padding-right:2%;">
+                        @if (!isReadonly)
+                        {
+                            @Html.TextBoxFor(x => x.AccessCode, new { @class = "form-control" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.AccessCode, new { @class = "form-control", @readonly = true })
+                        }
+                        @Html.LabelFor(x => x.AccessCode)
+                    </div>
+                    <div class="md-form" style="float:left;width:32%;">
+                        @if (!isReadonly)
+                        {
+                            @Html.TextBoxFor(x => x.RightOptionCode, new { @class = "form-control" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.RightOptionCode, new { @class = "form-control", @readonly = true })
+                        }
+                        @Html.LabelFor(x => x.RightOptionCode)
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            }
+            <!--Body-->
+            <hr />
+            <h5><strong>Medicamentos</strong></h5>
+            <br />
+            <div id="modalReceitaTable">
+                @Html.Action("_ModalReceitaTable", new { isReadonly })
+            </div>
+            <hr />
+            @*inicio Trello 1.8.3*@
+            <div>
+                @_WebMedicoHelpers.FileConverterFunction(".mdbc-pickfile", "#RecipeImageStr", "#RecipeImageName", "#FileHasBeenChanged", "dragandrophandler")
+                @_WebMedicoHelpers.FileEditorDelete(".mdbc-pickfile", "#RecipeImageStr", "#RecipeImageName", "#FileHasBeenChanged", "dragandrophandler")
+                @_WebMedicoHelpers.DragandDrop(".mdbc-pickfile", "dragandrophandler")
+                @if (!isReadonly) {
+                    <h5><strong>Adicionar Ficheiro</strong></h5>
+                    <hr />
+                    <div class="mdbc-pickfile">
+                        @{
+                            string File = (string.IsNullOrEmpty(Model.RecipeImageName)) ? string.Empty : "Ficheiro Selecionado: " + Model.RecipeImageName;
+                            string disabled = (File != string.Empty) ? "disabled" : "";
+                            string visible = (File != string.Empty) ? "display:block" : "display:none;";
+                            string dragandropvisible = (File == string.Empty) ? "display:block" : "display:none;";
+                        }
+                        <input type="file" name="fileUploaderControl" id="fileUploaderControl" style="display:none;">
+                        <div style="clear:both"></div>
+                        <div id="dragandrophandler" style="float:left;@dragandropvisible">
+                            <a id="openfiledialog" @disabled>
+                                <strong>Escolha um arquivo</strong> <i class="fa fa-search"></i>
+                            </a>
+                            o Arraste e solte arquivos aqui
+                        </div>
+                        <div style="clear:both"></div>
+                        <p id="txtMessage" style="float:left;">@File</p>
+                        <a id="deletebutton" style="float:left;@visible" href="#" class="material-icons grey-text text-darken-2">delete</a>
+                        <div style="clear:both"></div>
+                    </div>
+                    @_WebMedicoHelpers.ProgressBar("ProgressBarSection","RECIPE")
+                 } else if (Model.RecipeImageName != null) {
+                    <a href="@Url.Action("DownloadRecipe", "Home", new { idConsulta = @ViewBag.idConsulta, idRecipes = @Model.IdRecipes })"
+                       class="btn btn-primary btn-large waves-effect waves-light">
+                        <i class="fa fa-download"></i>
+                        Descargar
+                    </a>
+                    <p>Ficheiro: @Model.RecipeImageName</p>
+                    <br />
+                }
+            </div>
+            @*fin Trello 1.8.3*@
+        </div>
+
+        @if (!isReadonly)
+        {
+            <!--Footer-->
+            <div class="modal-footer">
+                <button type="button" class="btn-flat red-text waves-effect" data-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnSubmitReceita" data-remote="#btnSubmit" class="btn-flat blue-text waves-effect">Submeter</button>
+            </div>
+        }
+        <div class="modal-loading"></div>
+    </div>
+    <!--/.Content-->
+</div>
+
+<script type="text/javascript" language="javascript">
+    //FILE SELECTION. Trello 1.8.4
+    $(document).ready(function () {
+        $('#RecipeImageStr').val("");
+    });
+</script>
+@_WebMedicoHelpers.SubmitWithFileConverter("#modalReceita", "button#btnSubmitReceita", "#ProgressBarSection", "_receita", "_receitable")

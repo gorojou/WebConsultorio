@@ -1,0 +1,17 @@
+﻿[
+  {
+    "ReferenceCode": "1",
+    "Description": "Consulta inicial",
+    "Price": "15"
+  },
+  {
+    "ReferenceCode": "2",
+    "Description": "Consulta de retorno",
+    "Price": "15"
+  },
+  {
+    "ReferenceCode": "3",
+    "Description": "Ato médico gratuíto",
+    "Price": "0"
+  }
+]

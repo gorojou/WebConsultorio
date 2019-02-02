@@ -1,0 +1,27 @@
+﻿
+@model IFarmacias.Models.Response.RecipesResponse
+
+@if (Model.RecipeProducts.Any())
+{
+    <table class="table table-sm">
+        <tbody>
+            @foreach (var item in Model.RecipeProducts)
+                {
+                <tr>
+                    <td class="text-left">
+                        @item.Code
+                    </td>
+                    <td class="text-left">
+                        @item.MedicationName
+                    </td>
+                    <td class="text-left">
+                        @item.Qtd
+                        </td>
+                        <td class="text-left">
+                            @item.Posology
+                        </td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - WebMedico - ifarmacias</title>
+    @Scripts.Render("~/bundles/jquery")
+    @Styles.Render("~/css/css")
+
+</head>
+<body class="fixed-sn mdb-skin">
+    <header>
+        <!--Navbar-->
+        @*<nav class="navbar fixed-top navbar-toggleable-md navbar-dark scrolling-navbar double-nav">
+
+        </nav>*@
+        <!--/.Navbar-->
+    </header>
+    <br />
+        <div class="container body-content">
+            @RenderBody()
+        </div>
+    <br />
+    <br />
+    <br />
+    <footer class="page-footer blue center-on-small-only fixed-bottom">
+        <p>&emsp; &copy; @DateTime.Now.Year - WebMedico - ifarmacias</p>
+    </footer>
+
+    @Scripts.Render("~/bundles/tether")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/mdb")
+
+    @RenderSection("scripts", required: false)
+    <script>
+        $('.datepicker').pickadate({
+            today: 'Hoje',
+            clear: 'Limpar',
+            close: 'Cancelar',
+            selectYears: 50,
+            max: true
+        });
+
+        var states = [
+            "Brasil",
+            "Portugal",
+            "Venezuela",
+            "Chile",
+            "Argentina"
+        ];
+        $(document).ready(function () {
+            $('.mdb-select').material_select();
+            $('.mdb-autocomplete').mdb_autocomplete({
+                data: states
+            });
+        });
+    </script>
+</body>
+</html>

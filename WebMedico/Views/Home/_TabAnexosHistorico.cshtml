@@ -1,0 +1,24 @@
+﻿﻿@model List<IFarmacias.Models.AttachmentInfoResponse>
+@if (Model.Any())
+{
+    <div class="docs-gallery">
+        <h3 class="grey-text text-darken-1">Anexos</h3>
+        <ul id="gallery2" class="docs-pictures clearfix">
+            @foreach (var item in Model)
+            {
+                <li><img data-original="@item.Files" src="@item.Files" alt="Attatchment @item.IdAttachments"></li>
+            }
+        </ul>
+        <script>
+            var viewer2 = new Viewer(document.getElementById('gallery2'), {
+                url: 'data-original'
+            });
+        </script>
+    </div>
+}
+else
+{
+    <div class="col-12">
+        @_WebMedicoFormsHelpers.Naoexistemdados()
+    </div>
+}

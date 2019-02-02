@@ -1,0 +1,985 @@
+﻿@using IFarmacias.Models.Response
+@using System.Configuration
+@model WebMedico.Models.BasicInfoViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutConsulta.cshtml";
+    ViewBag.Title = "Consulta";
+
+    var ModelDoctor = ViewBag.ModelDoctor as WebMedico.Models.CustomPrincipal;
+}
+
+@section styles {
+    @Styles.Render("~/css/imageviewer")
+
+    <style>
+        .docs-pictures {
+        }
+
+            .docs-pictures > li {
+                float: left;
+                width: 15%;
+                height: 15%;
+                margin: 0 -1px -1px 0;
+                border: 1px solid transparent;
+                overflow: hidden;
+            }
+
+                .docs-pictures > li > img {
+                    border-radius: 0;
+                    width: 100%;
+                    cursor: -webkit-zoom-in;
+                    cursor: zoom-in;
+                }
+
+        .docs-gallery h3 {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            padding-left: 1.25rem;
+            font-weight: normal;
+        }
+
+            .docs-gallery h3:first-child {
+                margin-top: 0;
+            }
+
+        .mdbc-relative {
+            position: relative;
+        }
+
+        #typingIndicator {
+            padding: 2px 10px;
+            max-width: 80%;
+            margin-left: 70%;
+        }
+
+        .navbar {
+            min-height: 63px !important;
+        }
+    </style>
+}
+
+@section modals {
+    <div class="modal" id="modalCancelarConsulta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <h3><strong>Cancelar consulta!</strong></h3>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                    <p class="black-54">Tem a certeza que deseja cancelar a consulta deste paciente?</p>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <a type="button" href="#" onclick="location.href = '@Url.Action("CancelConsult", "Home", new {idConsult = Model.IdConsult} )'" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">CANCELAR</a>
+                    <a type="button" href="#" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">NÃO</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalNotificarUtente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <h3><strong>Notificar Utente</strong></h3>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                    <p class="black-54">O medicamento esta por tomar</p>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <a type="button" href="#" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">Visto</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-ext mdbc-modal" id="modalReceita" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true"></div>
+    <div class="modal modal-ext mdbc-modal" id="modalMCDT" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true"></div>
+    <div class="modal modal-ext mdbc-modal" id="modalParameter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true"></div>
+    <div class="modal modal-ext mdbc-modal" id="modalHistorico" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true"></div>
+
+    @{
+        Html.RenderPartial("_ModalFecharConsulta", Model);
+
+        <script>
+
+            $("#modalFecharConsulta").on("show", function () {
+                alert();
+            });
+        </script>
+    }
+    
+
+}
+
+@section navbar_addons {
+    <div class="mdbc-navbar-addon col-12">
+        <div class="row">
+            <div class="col-md-9 col-lg-8 offset-lg-2">
+                <!-- Nav tabs -->
+                <div class="tabs-wrapper">
+                    <ul class="nav classic-tabs blue" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link waves-light active" data-toggle="tab" href="#panelSoap" role="tab">SOAP</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelAnexos" id="tabAnexos" onclick="loadAnexos();" role="tab">Anexos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelReceitas" onclick="loadReceitas();" role="tab">Receitas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelMcdt" onclick="loadMcdt();" role="tab">MCDT</a>
+                        </li>
+                        <li class="nav-item" style="display:none;">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelMedicacao" onclick="loadMedicacao();" role="tab">Medicacao</a>
+                        </li>
+                        <li class="nav-item" style="display:none;">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelParametros" onclick="loadParametros();" role="tab">Parametros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelHistorico" onclick="loadHistorico();" role="tab">Historico</a>
+                        </li>
+                        <li class="nav-item" style="display:none;">
+                            <a class="nav-link waves-light" data-toggle="tab" href="#panelVideo" role="tab"><i class="material-icons">camera</i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3 col-lg-2 text-right mdbc-navbar-actions">
+                <a href="#" class="material-icons white-text" id="btnBeginCall" title="Começar chamada">call</a>
+                <a href="#" class="material-icons white-text" id="btnBeginVideo" title="Começar chamada de vídeo">videocam</a>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="container-fluid body-content mdbc-content">
+    <div class="row">
+        <ul id="slide-out" class="side-nav mdbc-sidenav fixed ps-container ps-theme-default col-lg-2 col-md-4 ps-active-y">
+            <li>
+                <ul class="mdbc-nomargin">
+                    <li>
+                        <ul class="mdbc-nestedlist">
+                            <li>
+                                <h5 class="title black-text text-left"><strong>@Model.Name</strong> <small><i id="twilioStatus" class="fa fa-circle" aria-hidden="true"></i></small></h5>
+                                <ul class="grey-text header">
+                                    <li><b><i class="material-icons icon darken-2">person</i></b> &nbsp; @Model.Age anos</li>
+                                    @if (Model.Gender == "M")
+                                    {
+                                        <li><b><i class="fa fa-mars icon"></i></b>   Masculino</li>
+                                    }
+                                    else
+                                    {
+                                        <li><b><i class="fa fa-venus icon"></i></b>   Feminino</li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a data-toggle="collapse" href="#motivo" class="waves-effect black-text" aria-expanded="false" aria-controls="motivo">Motivo</a>
+                                <hr />
+                                @if (!string.IsNullOrEmpty(Model.ConsultationDescription))
+                                {
+                                    <ul class="collapse show grey-text" id="motivo">
+                                        @foreach (var desc in Model.ConsultationDescription.Split(','))
+                                        {
+                                            <li>@desc</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="grey-text">&nbsp;&nbsp;Dados não disponíveis</span>
+                                }
+                            </li>
+                            <li>
+                                <a data-toggle="collapse" href="#alergias" class="waves-effect black-text" aria-expanded="false" aria-controls="alergias">Alergias</a>
+                                <hr />
+                                @if (!string.IsNullOrEmpty(Model.Alergy))
+                                {
+                                    <ul class="collapse show grey-text" id="alergias">
+                                        @foreach (var alergy in Model.Alergy.Split(','))
+                                        {
+                                            <li>@alergy</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="grey-text">&nbsp;&nbsp;Dados não disponíveis</span>
+                                }
+                            </li>
+                            <li>
+                                <a data-toggle="collapse" href="#doencas" class="waves-effect black-text" aria-expanded="false" aria-controls="doencas">Doenças</a>
+                                <hr />
+                                @if (!string.IsNullOrEmpty(Model.Diseases))
+                                {
+                                    <ul class="collapse show grey-text" id="doencas">
+                                        @foreach (var diseases in Model.Diseases.Split(','))
+                                        {
+                                            <li>@diseases</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="grey-text">&nbsp;&nbsp;Dados não disponíveis</span>
+                                }
+                            </li>
+                            <li>
+                                <a data-toggle="collapse" href="#subsissaude" class="waves-effect black-text" aria-expanded="false" aria-controls="subsissaude">Sub-sistema de saude</a>
+                                <hr />
+                                @if (Model.Subsystem != null && Model.Subsystem.Count > 0)
+                                {
+                                    <ul class="collapse show grey-text" id="subsissaude">
+                                        @foreach (var subSys in Model.Subsystem)
+                                        {
+                                            <li>@subSys</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="grey-text">&nbsp;&nbsp;Dados não disponíveis</span>
+                                }
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <div class="row col-12 mdbc-absolute bottom white mdbc-zindex-10">
+                    <button type="button" class="btn-flat btn-sm mdbc-alittlesmaller red-text waves-effect mdbc-btn-fullwidth mdbc-nomargin" data-toggle="modal" data-target="#modalCancelarConsulta">CANCELAR CONSULTA</button>
+                    <br />
+                    <!--
+                    <button id ="btnTerminar_Cobrar" type="button" style="background: #FE2E9A;" class="btn btn-sm mdbc-alittlesmaller blue-text waves-effect mdbc-btn-fullwidth mdbc-nomargin" data-toggle="modal" data-target="#modalFecharConsulta">TERMINAR / COBRAR</button>
+                    -->
+
+                    <button id="btnTerminar_Cobrar" type="button" style="background: #FE2E9A;" class="btn btn-sm mdbc-alittlesmaller blue-text waves-effect mdbc-btn-fullwidth mdbc-nomargin">TERMINAR / COBRAR</button>
+                </div>
+            </li>
+        </ul>
+
+        <main class="col-md-9 col-lg-8 offset-lg-2 mdbc-main mdbc-nopad" style="">
+            <!-- Tab panels -->
+            <div class="tab-content mdbc-tab-content card">
+
+                <!--Panel SOAP-->
+                <div class="tab-pane fade in show active" id="panelSoap" role="tabpanel">
+                    @Html.Action("_TabSoap", new { idConsulta = Model.IdConsult })
+                </div>
+
+                <!--Panel Anexos-->
+                <div class="tab-pane fade" id="panelAnexos" role="tabpanel">
+                </div>
+
+                <!--Panel Receitas-->
+                <div class="tab-pane fade" id="panelReceitas" role="tabpanel">
+                </div>
+
+                <!--Panel Mcdt-->
+                <div class="tab-pane fade" id="panelMcdt" role="tabpanel">
+                </div>
+
+                <!--Panel Medicacao-->
+                <div class="tab-pane fade" id="panelMedicacao" role="tabpanel">
+                </div>
+
+                <!--Panel Parametros-->
+                <div class="tab-pane fade" role="tabpanel" id="panelParametros">
+                    <div id="parameterList">
+                    </div>
+                    <div id="parameterInfo"></div>
+                </div>
+
+                <!--Panel Historico-->
+                <div class="tab-pane fade" id="panelHistorico" role="tabpanel">
+                </div>
+
+                <!--Panel Video-->
+                <div class="tab-pane fade mdbc-fullscreen" id="panelVideo" role="tabpanel">
+                </div>
+            </div>
+        </main>
+        <nav class="col-md-3 col-lg-2 hidden-xs-down white mdbc-sidebar mdbc-sidebar-right">
+            <ul>
+                <li>
+                    <div class="mdbc-chat-container">
+                        <div class="mdbc-chat-video">
+                            <div class="remote" id="videoRemote"></div>
+                            <div class="mirror" id="videoMirror"></div>
+                            <img class="user-img" src="~/Content/Images/default-userimg.jpg" />
+                            <div class="loading" id="loadingVideo" style="display:none;">
+                                <div class="preloader-wrapper active">
+                                    <div class="spinner-layer spinner-blue-only">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div><div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div><div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="actions text-center">
+                                <a class="btn-floating red" id="btnLeave"><i class="material-icons">call_end</i></a>
+                                <a class="btn-floating blue" id="btnFullScreen"><i class="material-icons">fullscreen</i></a>
+                            </div>
+                        </div>
+                        <div class="mdbc-chat-messages">
+                            @* @_WebMedicoFormsHelpers.EmptyChatMessages()*@
+                            <div class="loader-container text-center">
+                                <div class="preloader-wrapper big active">
+                                    <div class="spinner-layer spinner-blue">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div><div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div><div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="spinner-layer spinner-red">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div><div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div><div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="spinner-layer spinner-yellow">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div><div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div><div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="spinner-layer spinner-green">
+                                        <div class="circle-clipper left">
+                                            <div class="circle"></div>
+                                        </div><div class="gap-patch">
+                                            <div class="circle"></div>
+                                        </div><div class="circle-clipper right">
+                                            <div class="circle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mdbc-chat-input col-12 white mdbc-zindex-10">
+                            <div class="md-form input-group">
+                                <textarea class="form-control md-textarea" placeholder="Mensagem..." rows='1' data-max-rows='3' data-min-rows='1' aria-describedby="btnSend"></textarea>
+                                <a class="input-group-addon transparent waves-effect btnSend">
+                                    <i class="material-icons">send</i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="hidden-xs-up" id="loader">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content text-center">
+            <div class="loader-container text-center">
+                <div class="preloader-wrapper big active">
+                    <div class="spinner-layer spinner-blue">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+
+                    <div class="spinner-layer spinner-red">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+
+                    <div class="spinner-layer spinner-yellow">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+
+                    <div class="spinner-layer spinner-green">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="hidden-xs-up" id="smallerloader">
+    <div class="text-center" style="align-self: center;">
+        <div class="preloader-wrapper big active">
+            <div class="spinner-layer spinner-blue">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                    <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+
+            <div class="spinner-layer spinner-red">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                    <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+
+            <div class="spinner-layer spinner-yellow">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                    <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+
+            <div class="spinner-layer spinner-green">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div><div class="gap-patch">
+                    <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PARAMETERS FOR SESSION TIME OUT. Trello 1.22.11-->
+<input type="hidden" id="millisecWarning" name="millisecWarning" value="@Model.SessionConfig.MillisecWarning" />
+<input type="hidden" id="millisecRedir" name="millisecRedir" value="@Model.SessionConfig.MillisecRedir" />
+<input type="hidden" id="titleSession" name="titleSession" value="@Model.SessionConfig.Title" />
+<input type="hidden" id="messageSession" name="messageSession" value="@Model.SessionConfig.Message" />
+<input type="hidden" id="keepAliveButton" name="keepAliveButton" value="@Model.SessionConfig.KeepAliveButton" />
+<input type="hidden" id="logoutButton" name="logoutButton" value="@Model.SessionConfig.LogoutButton" />
+<input type="hidden" id="keepAlive" name="keepAlive" value="@Model.SessionConfig.KeepAlive" />
+<input type="hidden" id="ignoreUserActivity" name="ignoreUserActivity" value="@Model.SessionConfig.IgnoreUserActivity" />
+<input type="hidden" id="countdownBar" name="countdownBar" value="@Model.SessionConfig.CountdownBar" />
+<input type="hidden" id="countdownMessage" name="countdownMessage" value="@Model.SessionConfig.CountdownMessage" />
+<input type="hidden" id="countdownSmart" name="countdownSmart" value="@Model.SessionConfig.CountdownSmart" />
+
+@section scripts {
+    @Scripts.Render("~/bundles/ajax")
+    @Scripts.Render("~/bundles/charts")
+    @Scripts.Render("~/bundles/imageviewer")
+    @Scripts.Render("~/bundles/customval")
+    <script>
+        function mdbcToast(msg, timeout) {
+            if ($('body .mdbc-toast').length > 0) {
+                $('body .mdbc-toast').text(msg).addClass('active');
+            }
+            else {
+                var toast = $('<div class="mdbc-toast"></div>').text(msg);
+                toast.on('click', () => {
+                    toast.removeClass('active');
+                });
+                $('body').append(toast);
+
+                setTimeout(() => {
+                    toast.addClass('active');
+                }, 333);
+            }
+
+            setTimeout(() => {
+                toast.removeClass('active');
+            }, timeout | 5000);
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            //LOAD asynchronous
+            //$("#panelSoap").load('@Url.Action("_TabSoap", new { idConsulta = Model.IdConsult })')
+
+        });
+
+        function loadAnexos()
+        {
+            $("#panelAnexos").html($('#loader .loader-container').parent().html());
+            $("#panelAnexos").load('@Url.Action("_TabAnexos", new { idConsulta = Model.IdConsult })')
+            $('#tabAnexos').removeAttr("onclick");
+        }
+
+        function loadReceitas()
+        {
+            $("#panelReceitas").load('@Url.Action("_TabReceitas", new { idConsulta = Model.IdConsult })')
+        }
+
+        function loadMcdt()
+        {
+            $("#panelMcdt").load('@Url.Action("_TabMCDT", new { idConsulta = Model.IdConsult })')
+        }
+
+        function loadMedicacao()
+        {
+            $("#panelMedicacao").load('@Url.Action("_TabMedicacao", new { idConsulta = Model.IdConsult })')
+        }
+
+        function loadParametros()
+        {
+            $("#panelParametros").load('@Url.Action("_TabParametros", new { idConsulta = Model.IdConsult })')
+        }
+
+        function loadHistorico()
+        {
+            $("#panelHistorico").load('@Url.Action("_TabHistorico", new { idConsulta = Model.IdConsult })')
+        }
+
+        $("#btnTerminar_Cobrar").on("click", function () {
+
+            var invalid = $('.tabSoapField').filter(function (index) {
+                return $(this).val() === '' || $(this).hasClass('invalid');
+            }).length > 0;
+
+            if (invalid) {
+
+                var notValidField = $('.tabSoapField').filter(function (index) {
+                    return $(this).val() === '' || $(this).hasClass('invalid');
+                });
+
+                var texto = "";
+
+                for (var i = 0; i < notValidField.length; i++) {
+
+                    var elementId = notValidField[i].id
+
+                    if (!(i == notValidField.length) && (i > 0)) {
+                        texto += ", ";
+                    }
+
+                    switch (elementId) {
+                        case "fldSubjective":
+                            texto += "\n" + "Subjetivo";
+                            break;
+                        case "fldObjective":
+                            texto += "Objetivo";
+                            break;
+                        case "fldEvaluation":
+                            texto += "Avaliação";
+                            break;
+                        case "fldPlan":
+                            texto += "Plano";
+                            break;
+                    }
+                }
+
+                displayMessage("Informação da consulta em falta", "Os seguintes campos são obrigatórios: " + texto);
+            } else {
+                $('#modalFecharConsulta').modal('toggle');
+
+            }
+        });
+
+    </script>
+
+    <script src="https://media.twiliocdn.com/sdk/js/common/v0.1/twilio-common.min.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/chat/v1.0/twilio-chat.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/video/v1/twilio-video.min.js"></script>
+    <script src="~/Content/Assets/js/components/twilio-chat.js"></script>
+    <script src="~/Content/Assets/js/components/twilio-video.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.2.js"></script>
+    <script src="@System.Web.Configuration.WebConfigurationManager.AppSettings["ApiUrl"]/signalr/hubs"></script>
+
+    <script>
+        var urlSearchProducts = '@Url.Action("SearchProducts")?take=25';
+        var urlSearchMcdts = '@Url.Action("SearchMcdts")';
+        $("#modal-contact").modal("show");
+
+        new TwilioChat({
+            elmChatContainer: $('.mdbc-chat-messages'),
+            elmButtonSend: $('.mdbc-chat-input .btnSend'),
+            elmChatInput: $('.mdbc-chat-input textarea'),
+            identity: 'dr@(ModelDoctor.IdDoctor)',
+            urlTokenEndpoint: '@ConfigurationManager.AppSettings["ApiUrl"]' + '/api/GenerateChatToken',
+            roomName: 'dr@(ModelDoctor.IdDoctor)-utn@(Model.IdUtente)',
+            roomFriendlyName: @Html.Raw(Json.Encode(ModelDoctor.Name +" " +ModelDoctor.LastName +";"+ Model.Name)),
+            chatMembers: {
+                'utn@(Model.IdUtente)': $('#twilioStatus'),
+                id:'utn@(Model.IdUtente)'
+            }
+        });
+
+        var twilioVid = new TwilioVideo({
+                            identity: 'dr@(ModelDoctor.IdDoctor)',
+                            btnJoinVideoId: 'btnBeginVideo',
+                            btnJoinCallId: 'btnBeginCall',
+                            btnFullscreen: 'btnFullScreen',
+                            roomName: 'video-dr@(ModelDoctor.IdDoctor)-utn@(Model.IdUtente)',
+                            btnLeaveId: 'btnLeave',
+                            localVideoId: 'videoMirror',
+                            remoteVideoId: 'videoRemote',
+                            containerSelector: ".mdbc-chat-video",
+                            loadingContainerSelector: '#loadingVideo',
+                            fullscreenContainerId: 'panelVideo',
+                            relevantData: {
+                                idConsulta: '@Model.IdConsult',
+                                IdUtente: 'utn@(Model.IdUtente)'
+                            },
+                            urlEndPoint: '@ConfigurationManager.AppSettings["ApiUrl"]'
+                        });
+
+        $.connection.hub.url = '@ConfigurationManager.AppSettings["ApiUrl"]' + '/signalr/hubs';
+
+        var MyHub = $.connection.pushHub;
+
+        $.connection.hub.start().done(function () {
+            console.log("SignalR start");
+        });
+
+        //Aqui evaluas el json que te viene de signal r
+        MyHub.on('send', function (output) {
+            var object = JSON.parse(output);
+
+            if (object.RoomName === twilioVid.RoomName && object.NotificationType === 5)
+                twilioVid.disconnect();
+        });
+
+        var actionConfirmed = false,
+
+            $btnAction;
+        function confirmAction() {
+            $btnAction = $(this);
+            if (actionConfirmed == true) {
+                actionConfirmed = false;
+                $btnAction.popover('dispose');
+                if ($('#modalMCDT button#btnSubmitMcdt').length) {
+                    //$('#modalMCDT button#btnSubmitMcdt').attr('disabled', 'disabled');
+                }
+                if ($('#modalReceita button#btnSubmitReceita').length) {
+                    //$('#modalReceita button#btnSubmitReceita').attr('disabled', 'disabled');
+                }
+                onBeginSubmit();
+                return true;
+            }
+            $('[data-toggle="popover"]').popover('dispose');
+
+            $btnAction.popover({
+                animation: false,
+                template: '<div class="popover" role="tooltip"> \
+                             <div class="popover-arrow"></div> \
+                             <h3 class="popover-title pink-text text-lighten-1"></h3> \
+                             <div class="popover-content"></div> \
+                             <div class="text-center"> \
+                                <button type="button" class="btn-flat waves-effect pink-text text-lighten-1 confirm-accept">Sim</button> \
+                                <button type="button" class="btn-flat waves-effect pink-text text-lighten-1 confirm-reject">Nao</button> \
+                             </div> \
+                           </div>'
+            }).popover('show');
+
+            return actionConfirmed;
+        }
+
+        $(document).on("click", ".confirm-accept", function () {
+            actionConfirmed = true;
+
+            $btnAction.click();
+        });
+
+        $(document).on("click", ".confirm-reject", function () {
+            actionConfirmed = false;
+
+            $btnAction.popover('hide');
+        });
+
+        $('#horas').pickatime({
+            twelvehour: false
+        });
+
+        var typewatch = (function () {
+            var timer = 0;
+            return function (callback, ms) {
+                clearTimeout(timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
+
+        $(document).on('input', '.autocomplete-producto', function () {
+            var $input = $(this);
+            console.log("Starting autocomplete-producto");
+            typewatch(function () {
+                if ($input.val() !== '') {
+
+                    var dataInput;
+                    if ($input.hasClass('code')) {
+                        dataInput = { code: $input.val() }
+                    }
+                    else if ($input.hasClass('name')) {
+                        dataInput = { name: $input.val() }
+                    }
+
+                    console.log('searching for: ' + JSON.stringify(dataInput));
+                    $.getJSON(urlSearchProducts, dataInput, function (data) {
+                        if (data && data.length > 0) {
+                            console.log('response for for: ' + JSON.stringify(data));
+
+                            $('.mdb-autocomplete-wrap').off();
+                            $('.mdb-autocomplete-wrap').remove();
+
+                            $input.mdb_autocomplete({
+                                data: data
+                            });
+
+                            $input.trigger('keyup');
+
+                            $('.mdb-autocomplete-wrap').on('click', 'li', function () {
+                                $('.mdbc-table-addrow .code').val($(this).find('input').val());
+                                $('.mdbc-table-addrow .name').val($(this).text());
+
+                                $('.mdbc-table-addrow .code').focus();
+                                $('.mdbc-table-addrow .name').focus();
+
+                                $('.mdb-autocomplete-wrap').off();
+                                $('.mdb-autocomplete-wrap').remove();
+                            });
+                        }
+                    });
+                }
+            }, 500);
+        });
+        $(document).on('input', '.autocomplete-mcdt', function () {
+            var $input = $(this);
+            typewatch(function () {
+                if ($input.val() !== '') {
+
+                    var dataInput;
+
+                    if ($input.hasClass('code')) {
+                        dataInput = { code: $input.val() }
+                    }
+                    else if ($input.hasClass('name')) {
+                        dataInput = { name: $input.val() }
+                    }
+
+                    $.getJSON(urlSearchMcdts, dataInput, function (data) {
+                        if (data && data.length > 0) {
+                            $('.mdb-autocomplete-wrap').off();
+                            $('.mdb-autocomplete-wrap').remove();
+
+                            $input.mdb_autocomplete({
+                                data: data
+                            });
+
+                            $input.trigger('keyup');
+
+                            $('.mdb-autocomplete-wrap').on('click', 'li', function () {
+                                $('.mdbc-table-addrow .code').val($(this).find('input').val());
+                                $('.mdbc-table-addrow .name').val($(this).text());
+
+                                $('.mdbc-table-addrow .code').focus();
+                                $('.mdbc-table-addrow .name').focus();
+
+                                $('.mdb-autocomplete-wrap').off();
+                                $('.mdb-autocomplete-wrap').remove();
+                            });
+                        }
+                    });
+                }
+            }, 500);
+        });
+        var asIconLoaded = '<i class="fa fa-floppy-o"></i>',
+            asIconLoading = '<i class="fa fa-circle-o-notch fa-spin"></i>',
+            asIconError = '<i class="fa fa-times"></i>';
+
+        $("form.autosave").on('input', 'input, textarea', function () {
+            var $input = $(this),
+                $form = $input.closest('form');
+            typewatch(function () {
+                $form.submit();
+            }, 500);
+        });
+
+        function autosaveLoading() {
+            var $form = $(this);
+
+            $($form.data("label"))
+                .html(asIconLoading + "&nbsp;" + $form.data("textLoading"));
+        }
+
+        function autosaveSuccess() {
+            var $form = $(this);
+
+            $($form.data("label"))
+                .html(asIconLoaded + "&nbsp;" + $form.data("textLoaded"));
+        }
+
+        function autosaveError() {
+            var $form = $(this);
+
+            $($form.data("label"))
+                .html(asIconError + "&nbsp;" + $form.data("textError"));
+        }
+
+        function onBeginSubmit() {
+            $("*", this).prop('disabled', true);
+        }
+
+        function disableAll() {
+            $("*", $(this).closest('.modal-body')).prop('disabled', true);
+        }
+
+        function onModalLoaded() {
+            $("input[type=text]").change();
+
+            var form = $($(this).data('ajaxUpdate')).find("form");
+
+            form.each(function () {
+                $(this).removeData('validator');
+                $(this).removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($(this));
+            });
+        }
+
+        function onParameterSelected() {
+            $("#parameterList").hide();
+            $("#parameterInfo").show();
+            $("#parameterInfo").html($('#loader .loader-container').parent().html());
+        }
+
+        function onPartialLoading(obj) {
+            $($(this).data('ajaxUpdate')).html($('#loader .loader-container').parent().html());
+        }
+
+        function onModalLoading() {
+            $($(this).data('target')).html($('#loader').html());
+        }
+
+        function onModalError(err) {
+            //alert(err.statusText);
+            console.log(err);
+        }
+
+        function onModalSubmited() {
+            $(this).closest('.modal').modal('hide');
+        }
+        function galleryInit() {
+            var viewer = new Viewer(document.getElementById('gallery'), {
+                url: 'data-original'
+            });
+        }
+
+        $(document).on('click', '#parameterHome', function () {
+            $("#parameterList").show();
+            $("#parameterInfo").hide();
+        });
+
+        $(document).on('click', '.clockpicker-button', function() {
+            $(this).closest('.clockpicker').siblings('.timepicker').change();
+        });
+
+        $(document).on('click', '[data-remote]', function () {
+            $($(this).data('remote')).click();
+        });
+
+        $(document).on('click', '.less', function() {
+            var value = $(this).siblings('input').val();
+            value = value === '' | value === 0 ? 0 : value;
+            value--;
+            $(this).siblings('input').val(value);
+        });
+
+        $(document).on('click', '.more', function() {
+            var value = $(this).siblings('input').val();
+            value = value === '' | value === 0 ? 0 : value;
+            value++;
+            $(this).siblings('input').val(value);
+        });
+
+        //BASED ON: http://codepen.io/vsync/pen/frudD
+        $(document)
+            .one('focus.autoExpand', '.mdbc-chat-input textarea', function(){
+                var savedValue = this.value;
+                this.value = '';
+                this.baseScrollHeight = this.scrollHeight;
+                this.value = savedValue;
+            })
+            .on('input.autoExpand', '.mdbc-chat-input textarea', function(){
+                var minRows = this.getAttribute('data-min-rows')|0, rows;
+                var maxRows = this.getAttribute('data-max-rows')|0, rows;
+                this.rows = minRows;
+                rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / 17);
+
+                if (rows <= maxRows)
+                    this.rows = rows > minRows ? rows : minRows + rows;
+                else
+                    this.rows = maxRows;
+            });
+
+        //$('.mdbc-chat-input textarea').on('input', function () {
+        //    this.style.height = "auto";
+        //    this.style.height = (this.scrollHeight)+"px";
+        //});
+
+        $('.fixed-action-btn').off('click');
+        $(document).on('click', '.fixed-action-btn', function () {
+            $($('[data-toggle="modal"]', this).data('target')).modal('show');
+        });
+
+        //$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        //    console.log(e.target); // Tab nueva, la que se activara
+        //    console.log(e.relatedTarget);
+        //    //e.relatedTarget; // Tab activa previamente
+        //});
+
+        function next() {
+            var tabs = $('.modal .nav-tabs');
+            var currentTab = $(tabs).find('li > a.active');
+            $(currentTab).parent().next('li').find('a').trigger('click');
+        }
+
+        function previous() {
+            var tabs = $('.modal .nav-tabs');
+            var currentTab = $(tabs).find('li > a.active');
+            $(currentTab).parent().prev('li').find('a').trigger('click');
+        }
+    </script>
+}

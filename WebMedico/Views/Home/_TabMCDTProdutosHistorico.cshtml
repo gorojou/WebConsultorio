@@ -1,0 +1,24 @@
+﻿@model IFarmacias.Models.Response.McdtResponse
+
+@if (Model.McdtExams.Any())
+{
+    <table class="table table-sm">
+        <tbody>
+            @foreach (var item in Model.McdtExams)
+                {
+                <tr>
+                    <td class="text-left">
+                        @item.Code
+                    </td>
+                    <td class="text-left">
+                        @item.ExamName
+                    </td>
+                    <td class="text-left">
+                        @item.Qtd
+                        </td>
+                        
+                    </tr>
+            }
+        </tbody>
+    </table>
+}

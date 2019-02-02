@@ -1,0 +1,217 @@
+﻿@using WebMedico.Models.Consults;
+@model List<RecipeProductViewModel>
+@{ bool addingnewrow = (ViewBag.AddingNewRow == null) ? false : ViewBag.AddingNewRow;}
+@using (Ajax.BeginForm("_ModalReceitaTableSet",
+                    new
+                    {
+                        isReadonly = ViewBag.isReadonly,
+                        _isAddingNewRow = addingnewrow
+                    },
+                    new AjaxOptions()
+                    {
+                        HttpMethod = "Post",
+                        UpdateTargetId = "modalReceitaTable",
+                        InsertionMode = InsertionMode.Replace,
+                        OnFailure = "onModalError",
+                        OnBegin = "onBeginSubmit",
+                        OnComplete = "onModalLoaded"
+                    },
+                    new
+                    { id = "_receitable" }
+            ))
+{
+    <table class="table z-depth-1 mdbc-table table-hover">
+        <thead>
+            <tr class="grey-text grey-darken-1">
+                <th class="text-left" width="80">Codigo</th>
+                <th class="text-right">Medicamento</th>
+                <th class="text-right" width="108">Quantidade</th>
+                <th class="text-right">Posologia</th>
+                @if (!ViewBag.isReadonly || ViewBag.Index != null)
+                {
+                    <th class="text-right">Acções</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int lastelement = Model.Count - 1;
+            for (int index = 0; index < Model.Count; index++)
+            {
+                bool islastelement = (lastelement == index);
+                if (ViewBag.Index != index)
+                {
+                    <tr>
+                        <td class="text-left">
+                            @Model[index].Code
+                            @Html.HiddenFor(x => x[index].Code)
+                        </td>
+                        <td class="text-right">
+                            @Model[index].MedicationName
+                            @Html.HiddenFor(x => x[index].MedicationName)
+                        </td>
+                        <td class="text-right">
+                            @Model[index].Qtd
+                            @Html.HiddenFor(x => x[index].Qtd)
+                        </td>
+                        <td class="text-right">
+                            @Model[index].Posology
+                            @Html.HiddenFor(x => x[index].Posology)
+                        </td>
+                        @if (!ViewBag.isReadonly)
+                        {
+
+                            <td class="mdbc-actions text-right">
+                                @Ajax.ActionLink("delete", "_ModalReceitaTableDeleteRow",
+                                new
+                                {
+                                    isReadonly = ViewBag.isReadonly,
+                                    index
+                                },
+                                new AjaxOptions()
+                                {
+                                    UpdateTargetId = "modalReceitaTable",
+                                    InsertionMode = InsertionMode.Replace,
+                                    OnFailure = "onModalError",
+                                    OnBegin = "confirmAction",
+                                    OnComplete = "onModalLoaded"
+                                },
+                                new
+                                {
+                                    data_toggle = "popover",
+                                    data_placement = "left",
+                                    data_content = "Tem certeza que deseja remover o produto?",
+                                    title = "Confirmar",
+                                    @class = "material-icons grey-text text-darken-2"
+                                })
+                                @Ajax.ActionLink("edit", "_ModalReceitaTableEditRow",
+                                new
+                                {
+                                    _index = index,
+                                    _isAddingNewRow = addingnewrow
+                                },
+                                new AjaxOptions()
+                                {
+                                    UpdateTargetId = "modalReceitaTable",
+                                    InsertionMode = InsertionMode.Replace,
+                                    OnFailure = "onModalError",
+                                    OnBegin = "onBeginSubmit",
+                                    OnComplete = "onModalLoaded"
+                                },
+                                new
+                                {
+                                    @class = "material-icons grey-text text-darken-2"
+                                })
+                                @if ((islastelement) && (!ViewBag.AddingNewRow))
+                                {
+                                    <button type="submit" name="submitButton" style="border: none;padding: 0;background: none;" value="add" class="material-icons grey-text text-darken-2">add</button>
+                                }
+                        </td>
+                    }
+                    else if (ViewBag.Index != null)
+                    {
+                        <td>&nbsp;</td>
+                    }
+                    </tr>
+                }
+                else
+                {
+                    <tr class="mdbc-table-addrow">
+                        <td class="mdbc-relative">
+                            @Html.TextBoxFor(x => x[index].Code, new { @class = "form-control text-right code autocomplete-producto", autocomplete = "off" })
+                        </td>
+                        <td class="mdbc-relative">
+                                @Html.TextBoxFor(x => x[index].MedicationName, new { @class = "form-control text-right name autocomplete-producto", autocomplete = "off" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(x => x[index].Qtd, new { @class = "form-control text-right", autocomplete = "off" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(x => x[index].Posology, new { @class = "form-control text-right", autocomplete = "off" })
+                            </td>
+                            <td class="mdbc-actions text-right">
+                                @Ajax.ActionLink("cancel", "_ModalReceitaTable",
+                                new
+                                {
+                                    isReadonly = false
+                                },
+                                new AjaxOptions()
+            {
+                UpdateTargetId = "modalReceitaTable",
+                                    InsertionMode = InsertionMode.Replace,
+                                    OnFailure = "onModalError",
+                                    OnBegin = "onBeginSubmit",
+                                    OnComplete = "onModalLoaded"
+                                },
+                                new
+                                {
+                                    @class = "material-icons grey-text text-darken-2"
+                                })
+                                <button type="submit" name="submitButton" value="check" class="material-icons grey-text text-darken-2">check_circle</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            }
+            else if (ViewBag.isReadonly)
+            {
+                <tr>
+                    <td colspan="6" class="text-center">Não existem dados</td>
+                </tr>
+            }
+            else if ((!ViewBag.isReadonly) && (!ViewBag.AddingNewRow))
+            {
+                <tr>
+                    <td colspan="4" class="text-center">Não existem dados</td>
+                        <td class="mdbc-actions text-right">
+                        <button type="submit" name="submitButton" style="border: none;padding: 0;background: none;" value="add" class="material-icons grey-text text-darken-2">add</button>
+                    </td>
+                </tr>
+            }
+
+            @if (ViewBag.AddingNewRow)
+            {
+                Model.Add(new RecipeProductViewModel());
+                int newRowIndex = Model.Count - 1;
+                <tr class="mdbc-table-addrow">
+                    <td class="mdbc-relative">
+                        @Html.TextBoxFor(x => x[newRowIndex].Code, new { @class = "form-control text-right code autocomplete-producto", autocomplete = "off", required = "true" })
+                        @Html.ValidationMessageFor(x => x[newRowIndex].Code)
+                    </td>
+                    <td class="mdbc-relative">
+                        @Html.TextBoxFor(x => x[newRowIndex].MedicationName, new { @class = "form-control text-right name autocomplete-producto", autocomplete = "off", required = "true" })
+                        @Html.ValidationMessageFor(x => x[newRowIndex].MedicationName)
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(x => x[newRowIndex].Qtd, new { @class = "form-control text-right", autocomplete = "off", required = "true" })
+                        @Html.ValidationMessageFor(x => x[newRowIndex].Qtd)
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(x => x[newRowIndex].Posology, new { @class = "form-control text-right", autocomplete = "off" })
+                        @Html.ValidationMessageFor(x => x[newRowIndex].Posology)
+                    </td>
+                    <td class="mdbc-actions text-right">
+                        @Ajax.ActionLink("delete", "_ModalReceitaTableCancelAddRow",
+                        new
+                        {
+
+                        },
+                        new AjaxOptions()
+                        {
+                            UpdateTargetId = "modalReceitaTable",
+                        },
+                        new
+                        {
+                            @class = "material-icons grey-text text-darken-2"
+                        })
+                        <button type="submit" name="submitButton" style="border: none;padding: 0;background: none;" value="add" class="material-icons grey-text text-darken-2">add</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+
+
+    </table>
+}

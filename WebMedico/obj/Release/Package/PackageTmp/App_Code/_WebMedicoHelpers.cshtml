@@ -1,0 +1,357 @@
+﻿@using WebMedico.App_Code;
+@using IFarmacias.Models.Response;
+@using WebMedico.Extensions;
+@helper CssForPartialMessageNotifications()
+{
+    <style>
+        .numberCircle {
+            height: 30px;
+            width: 30px;
+            line-height: 30px;
+            -moz-border-radius: 15px;
+            border-radius: 15px;
+            background-color: lightgray;
+            color: black;
+            text-align: center;
+            font-size: 1em;
+            float: left;
+            text-transform: uppercase;
+        }
+
+        .headerofuser {
+            text-transform: capitalize;
+        }
+
+        .textofuser {
+            text-align: justify !important;
+            padding-left: 40px !important;
+        }
+    </style>
+}
+@helper CshtmlPartialMessageNotificationsHeader(int? TotalMsgCount)
+{
+    <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        @if (TotalMsgCount.HasValue)
+        {
+            if (TotalMsgCount.Value > 0)
+            {
+                <span class="badge red">@TotalMsgCount</span>
+            }
+        }
+        <i class="material-icons text-white">chat_bubble</i>
+        <span class="hidden-sm-down"></span>
+    </a>
+}
+@helper CshtmlPartialMessageNotificationsDropDownMenu(List<TwilioUserChannelsResponse> Model)
+{
+    <div class="dropdown-menu header-notifications animated dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+        <div class="mail" style="line-height:100px">
+            <div style="float:left;line-height: 35px">
+                <svg x="0px" y="0px" width="35px" height="35px" viewBox="0 0 76 76" preserveAspectRatio='xMinYMin'>
+                    <path fill="#33B5E5"
+                          fill-opacity="1"
+                          stroke-width="0.2"
+                          stroke-linejoin="round"
+                          d="M 21.5,23L 54.5,23C 56.2489,23 58,24.7511 58,26.5L 58,49.5C 58,51.2489 56.2489,53 54.5,53L 21.5,53C 19.7511,53 18,51.2489 18,49.5L 18,26.5C 18,24.7511 19.7511,23 21.5,23 Z M 22,47C 22,48.3117 22.6883,49 24,49L 52,49C 53.3117,49 54,48.3117 54,47L 54,29L 40.6563,42.6567C 39.4197,43.8933 37.4146,43.8933 36.178,42.6567L 22,29L 22,47 Z M 25,27L 36.7378,38.7381C 37.6653,39.6656 39.169,39.6656 40.0965,38.7381L 52,27L 25,27 Z ">
+                    </path>
+                </svg>
+            </div>
+            <div style="float:left;line-height:35px">
+                Mensagens
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <ul id="conversationsList">
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    string channelid = item.ChannelId;
+                    int unreadmessagecount = (item.UnreadMessagesCount.HasValue) ? item.UnreadMessagesCount.Value : 0;
+                    string dt = (item.LastChatMessageDateTime == null) ? "" : item.LastChatMessageDateTime.Value.CustomDateTimeToString();
+                    <li class="active-notification" data-channelid="@channelid">
+                        @if (unreadmessagecount > 0)
+                        {
+                            <span class="badge red">@unreadmessagecount</span>
+                        }
+                        <div class="numberCircle">@item.ChannelFriendlyName.Substring(0, 1)</div>
+                        <div class="title headerofuser" style="padding-left:40px;">@item.ChannelFriendlyName.ToLower()</div>
+                        <div class="textofuser">
+                            @item.Description
+                            <div style="color:#04abe9;">@dt</div>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+@helper CssForMoreToggle()
+{
+    <style>
+        .first-mayuscula {
+            text-transform: capitalize;
+        }
+        a.morelink {
+            text-decoration: none;
+            outline: none;
+            color: #000;
+            font-weight: normal;
+        }
+        .strong {
+            font-weight: bold;
+        }
+        .withpaddings {
+            padding-left: 3em;
+            padding-right: 3em;
+            width: 100%;
+        }
+        .ui-tooltip {
+            background: #848387;
+            color: #05abe9;
+            border: none;
+            padding: 0;
+            opacity: 1;
+            min-height: 3em;
+            border-radius: 5px;
+            width: 30%;
+        }
+        .ui-tooltip-content {
+            position: relative;
+            padding: 1em;
+        }
+        .ui-tooltip-content::after {
+            content: '';
+            position: absolute;
+            border-style: solid;
+            display: block;
+            width: 0;
+        }
+        .ui-tooltip-content::after {
+            top: -10px;
+            left: 15%;
+            width: 30px;
+            height: 15px;
+            border-bottom: solid 15px #848387;
+            border-left: solid 15px transparent;
+            border-right: solid 15px transparent;
+         }
+        .more_or_less_text {
+            text-align: justify;
+            text-justify: inter-word;
+            line-height: 1.1;
+            height: 2.2em;
+        }
+        .more_or_less_text_transformed_content {
+            float: left;
+            overflow-y: hidden;
+            line-height: 1.1;
+            height: 2.2em;
+            text-align: justify;
+            text-justify: inter-word;
+            display: block;
+        }
+    </style>
+}
+@helper JQueryForMoreToggle(int size)
+{
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script>var $j = jQuery.noConflict(true);</script>
+    <script>
+        $j(document).ready(function () {
+            var showChar = @size;
+            var ellipsestext = "...";
+            var width = $j(this).width();
+            var moretext = "Ver detalhe";
+            $j('.more_or_less_text').each(function () {
+                var content = ''; var contenttext = '';
+                if ($j(this).has('.notignoretext')) {
+                    content = $j(this).find('.notignoretext').html();
+                    contenttext = $j(this).find('.notignoretext').text();
+                }
+                if (($j(this)[0].offsetHeight < $j(this)[0].scrollHeight) || ($j(this)[0].offsetWidth < $j(this)[0].scrollWidth)) {
+                    var size = 'h:' + $j(this)[0].offsetHeight + 'sh:' + $j(this)[0].scrollHeight + 'w' + $j(this)[0].offsetWidth + 'sw' + $j(this)[0].scrollWidth;
+                    var html =
+                          '<div class="more_or_less_text_transformed">'
+                                + '<div class="more_or_less_text_transformed_content">'
+                                    + content
+                                + '</div>'
+                                + '<div style="float:right;">'
+                                    + ellipsestext
+                                + '</div>'
+                                + '<div style="float:left;">'
+                                    + '<a href="#" title="' + contenttext + '" class="strong morelink"></a>'
+                                + '</div>'
+                        + '</div>';
+                    $j(this).html(html);
+                    $j(this).find('.morelink').tooltip({
+                        position: {
+                            my: "left top",
+                            at: "center bottom+10",
+                            collision: "none"
+                        }
+                    });
+                    $j(this).find('.more_or_less_text_transformed').mouseenter(function () {
+                        $j(this).find(".morelink").mouseenter();
+                    });
+                    $j(this).find('.more_or_less_text_transformed').mouseleave(function () {
+                        $j(this).find(".morelink").mouseleave();
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+@helper ProgressBar(string ContainerId, string type)
+{
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/notify.js"></script>
+    <script>var $p = jQuery.noConflict(true);</script>
+    <div id="@ContainerId" style="width:100%;position:relative;opacity: 0.7;" align="center">
+        <div align="center"><div id="notification"></div></div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <div id="divProgress"></div>
+    </div>
+    <script>
+        var timeStart; var CircularLoaderMsg = 'Atualizando @type, aguarde um momento por favor';
+        function ClearIntervals() {
+            for (var i = 1; i < 99999; i++)
+                window.clearInterval(i);
+        }
+        function CircularLoader() {
+             var interval = setInterval(function () {
+                var timeEnd = new Date();
+                $p('#@ContainerId #notification').notify(CircularLoaderMsg, "info", { autoHide: false});
+            }, 10000);
+            $p('#@ContainerId #divProgress').html($('#smallerloader').html());
+        }
+        ClearIntervals();
+    </script>
+}
+
+@helper SubmitWithFileConverter(string Container, string SubmitButton, string ProgressBarContainer, string outerformid, string innerformid)
+{
+    <script>
+            $('@Container @SubmitButton').click(function (e) {
+                timeStart = new Date();
+                e.preventDefault();
+                CircularLoader();
+                if ($('form#@innerformid').valid()) {
+                    $.ajax({
+                        url: $('form#@innerformid').attr('action'),
+                        type: 'POST',
+                        data: $('form#@innerformid').serialize(),
+                        success: function () {
+                            if ($('form#@outerformid').valid()) {
+                                $('form#@outerformid').submit();
+                                return true;
+                            }
+                            else {
+                                ClearIntervals();
+                            }
+                        }
+                    });
+                }
+                else {
+                    ClearIntervals();
+                }
+                return false;
+            });
+    </script>
+}
+
+
+@helper DragandDrop(string Container, string draganddropid)
+{
+    <style>
+        #@draganddropid {
+            border: 2px dotted #0B85A1;
+            width: 100%;
+            color: #92AAB0;
+            text-align: left;
+            vertical-align: middle;
+            padding: 30px 30px 30px 30px;
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        var obj = $('@Container #@draganddropid');
+        obj.on({
+            'dragover dragenter': function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            },
+            'drop': function (e) {
+                    e.preventDefault();
+                    var files = e.originalEvent.dataTransfer.files;
+                    var file = files[0];
+                    FileConverter(file);
+                }
+            });
+    </script>
+}
+
+@helper FileEditorDelete(string Container, string FileHiddenField, string FileNameHiddenField, string FileHasBeenChanged, string draganddropid)
+{
+    <script>
+        $('@Container #deletebutton').click(function () {
+            $('@Container #txtMessage').html('');
+            $('@FileHiddenField').val('');
+            $('@FileNameHiddenField').val('');
+            $('@FileHasBeenChanged').val('true');
+            $('@Container #openfiledialog').prop('disabled', false);
+            $('@Container #@draganddropid').css('display', 'block');
+            $(this).css('display', 'none');
+        });
+    </script>
+}
+
+@helper FileConverterFunction(string Container, string FileHiddenField, string FileNameHiddenField, string FileHasBeenChanged, string draganddropid)
+{
+    <script>
+            function FileConverter(file) {
+                var filename = file.name;
+                var reader = new FileReader();
+                var ext = null;
+                try {
+                    ext = filename.split('.').pop().toLowerCase();
+                }
+                catch (err) {
+                    $('@Container #txtMessage').html('No file selected');
+                    $('@Container #deletebutton').css('display', 'none');
+                    return;
+                }
+                if ($.inArray(ext, ['pdf']) == -1) {
+                    $('@Container #txtMessage').html('Invalid file extension! pdf only');
+                    $('@Container #deletebutton').css('display', 'none');
+                    return;
+                }
+                reader.readAsDataURL(file);
+                reader.onload = function (e) {
+                    var src = e.target.result;
+                    $('@FileHiddenField').val(src);
+                    $('@FileNameHiddenField').val(file.name);
+                    $('@FileHasBeenChanged').val('true');
+                    $('@Container #deletebutton').css('display', 'block');
+                    $('@Container #txtMessage').html("Ficheiro Selecionado: " + file.name);
+                    $('@Container #openfiledialog').prop('disabled', true);
+                    $('@Container #@draganddropid').css('display', 'none');
+                }
+            }
+
+            $('@Container #openfiledialog').click(function () {
+                $('@Container input#fileUploaderControl').val('');
+                $('@Container input#fileUploaderControl').click();
+            });
+            $('@Container input#fileUploaderControl').on("change", function ()
+            {
+                var file = this.files[0];
+                FileConverter(file);
+            });
+    </script>
+}

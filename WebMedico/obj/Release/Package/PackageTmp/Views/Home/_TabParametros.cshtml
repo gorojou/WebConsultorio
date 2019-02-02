@@ -1,0 +1,67 @@
+﻿@using IFarmacias.Models.Response
+@model List<IFarmacias.Models.ParametersInfoResponse>
+
+<div class="col-md-12">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <strong>Parametros com registos</strong>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <i class="fa fa-line-chart fa-lg" aria-hidden="true"></i>
+                                @Ajax.ActionLink(item.ParameterName, "_ModalViewParametroInfo", "Home",
+                            new
+                            {
+                                idParameter = item.IdParameter.Value,
+                                idConsulta = ViewBag.idConsulta,
+                                startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month - 6, 1).ToString("yyyy-MM-dd"),
+                                endDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                            },
+                            new AjaxOptions
+                            {
+                                UpdateTargetId = "parameterInfo",
+                                InsertionMode = InsertionMode.Replace,
+                                OnSuccess = "onModalLoaded",
+                                OnBegin = "onParameterSelected"
+                            },
+                            new
+                            {
+                                title = item.ParameterName/*,
+                                data_toggle = "modal",
+                                data_target = "#modalParameter"*/
+                            })
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+
+
+    @*<div class="col-4 offset-4 text-center">
+            <br />
+            <br />
+            <br />
+            <br />
+            <div class="offset-1 col-10">
+                <img class="col-12" src="~/Content/Images/logo.png" />
+            </div>
+            <br />
+            <h3>Não existem dados</h3>
+        </div>*@
+</div>

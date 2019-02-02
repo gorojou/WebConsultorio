@@ -1,0 +1,91 @@
+﻿@using IFarmacias.Models.Response
+@model List<ParametersDetailsResponse>
+
+<div>
+    <div>
+        <h3>
+            <a id="parameterHome" class="material-icons blue-text">arrow_back</a>
+            &nbsp;
+            <strong>@ViewBag.ParameterName</strong>
+        </h3>
+    </div>
+    <div>
+        <div class="row">
+            <div class="col-4">
+            </div>
+            <div class="col-4">
+                <div class="md-form input-group">
+                    <label>De: </label>
+                    <input placeholder="Selected date" type="text" id="chartDateFrom" data-date-format='yyyy-mm-dd' value="@ViewBag.startDate" class="form-control datepicker" readonly="" aria-haspopup="true" aria-expanded="true" aria-readonly="false" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="md-form input-group">
+                    <label>Ate: </label>
+                    <input placeholder="Selected date" type="text" id="chartDateTo" data-date-format='yyyy-mm-dd' value="@ViewBag.endDate" class="form-control datepicker" readonly="" aria-haspopup="true" aria-expanded="true" aria-readonly="false" />
+                </div>
+            </div>
+
+            @if (Model != null && Model.Count > 0 && Model[0].WmHeight != null)
+            {
+                <div class="col-4">
+                    <div class="md-form input-group">
+                        <label>Altura: @Model[0].WmHeight</label>
+                    </div>
+                </div>
+            }
+
+        </div>
+        <div id="result">
+            @Html.Partial("_InfoParameter", Model)
+        </div>
+    </div>
+</div>
+<style>
+    .scroll-box {
+        position: relative;
+        overflow-y: scroll;
+        height: 1000px;
+    }
+
+    .scrollspy-example {
+        position: relative;
+        overflow-y: scroll;
+        height: 200px;
+    }
+</style>
+<script>
+    $('.datepicker').pickadate({
+        format: 'yyyy-mm-dd',
+        onSet: function(context) {
+            //console.log('Just set stuff:', context)
+
+            var dateFrom = $("#chartDateFrom").val();
+            var dateTo = $("#chartDateTo").val();
+
+            var dataParam = {
+                'idConsulta': '@ViewBag.idConsulta',
+                'idParameter':'@ViewBag.idParameter',
+                'startDate' :  dateFrom,
+                'endDate' : dateTo
+            };
+
+            $("#result").html($('#loader .loader-container').parent().html());
+
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: '@Url.Action("parameterInfo", "Home")',
+                dataType: "html",
+                data: dataParam,
+                success: function (data) {
+                    $("#result").html(data);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    });
+
+</script>

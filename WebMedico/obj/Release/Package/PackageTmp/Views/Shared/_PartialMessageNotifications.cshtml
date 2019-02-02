@@ -1,0 +1,12 @@
+﻿@using IFarmacias.Models.Response;
+@model List<TwilioUserChannelsResponse> 
+@{
+    int unreadMessagesCount = 0;
+    if (Model != null)
+    {
+        unreadMessagesCount = (Model.Count > 0)? Model.Sum(i => (i.UnreadMessagesCount.HasValue)? i.UnreadMessagesCount.Value:0) : 0;
+    }
+}
+@_WebMedicoHelpers.CssForPartialMessageNotifications()
+@_WebMedicoHelpers.CshtmlPartialMessageNotificationsHeader(unreadMessagesCount)
+@_WebMedicoHelpers.CshtmlPartialMessageNotificationsDropDownMenu(Model)

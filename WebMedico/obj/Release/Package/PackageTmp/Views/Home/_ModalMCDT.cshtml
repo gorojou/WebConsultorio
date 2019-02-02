@@ -1,0 +1,184 @@
+﻿@model IFarmacias.Models.Response.McdtResponse
+@{
+    bool isEdit = Model.IdMcdt > 0;
+    bool isReadonly = ViewBag.Readonly != null && ViewBag.Readonly == true;
+    HtmlString modalTitle;
+    if (isReadonly) { modalTitle = new HtmlString("Ver"); }
+    else if (isEdit) { modalTitle = new HtmlString("Editar"); }
+    else { modalTitle = new HtmlString("Inserir"); }
+}
+@*inicio Trello 1.8.4*@
+<style>
+    .mdbc-pickfile-mcdt {
+        text-align: center;
+        padding: 10px 10px;
+    }
+
+    .mdbc-pickfile-mcdt img {
+        border-radius: 50% !important;
+        min-height: 57%;
+    }
+
+    .mdbc-pickfile-mcdt button {
+        margin: 0;
+        margin-top: -20px;
+        font-size: .55rem;
+        padding: .5rem .6rem !important;
+    }
+
+    .mdbc-pickfile-mcdt button i {
+        font-size: .6rem !important;
+    }
+</style>
+@*fin Trello 1.8.4*@
+<div class="modal-dialog modal-lg" role="document">
+    <!--Content-->
+    <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+
+            <div class="btn-group mdbc-modal-action">
+                @if (isReadonly)
+                {
+                    @Ajax.ActionLink("edit", "_ModalEditMcdt",
+                    new
+                    {
+                        idConsulta = ViewBag.idConsulta,
+                        idMcdt = Model.IdMcdt
+                    },
+                    new AjaxOptions()
+                    {
+                        UpdateTargetId = "modalMCDT",
+                        InsertionMode = InsertionMode.Replace,
+                        OnSuccess = "onModalLoaded",
+                        OnBegin = "onModalLoading"
+                    },
+                    new
+                    {
+                        @class = "material-icons",
+                        data_target = "#modalMCDT"
+                    })
+                    <!--Trigger-->
+                    <a class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">more_vert</a>
+
+                        <!--Menu-->
+                    <div class="dropdown-menu dropdown-menu-right">
+                        @Ajax.ActionLink("Eliminar", "DeleteMcdt",
+                        new
+                        {
+                            idConsulta = ViewBag.idConsulta,
+                            idMcdt = Model.IdMcdt
+                        },
+                        new AjaxOptions()
+                        {
+                            UpdateTargetId = "panelMcdt",
+                            InsertionMode = InsertionMode.Replace,
+                            OnFailure = "onModalError",
+                            OnComplete = "onModalSubmited",
+                            OnBegin = "confirmAction"
+                        },
+                        new
+                        {
+                            data_toggle = "popover",
+                            data_placement = "bottom",
+                            data_content = "Tem certeza que deseja remover o mcdt?",
+                            title = "Confirmar",
+                            @class = "dropdown-item"
+                        })
+                    </div>
+                }
+                <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+            </div>
+
+            <h4 class="modal-title" id="myModalLabel">@modalTitle MCDT</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+              @using (Ajax.BeginForm("AddEditMcdt", "Home",
+              new { idConsulta = ViewBag.idConsulta },
+              new AjaxOptions { UpdateTargetId = "panelMcdt", InsertionMode = InsertionMode.Replace,OnFailure = "onModalError", OnSuccess = "onModalSubmited", OnBegin = "disableAll", OnComplete = "onModalLoaded" },
+              new { id = "_mcdt" }))
+              {
+                <h5><strong>Dados gerais MCDT</strong></h5>
+                <br />
+                @Html.HiddenFor(x => x.IdMcdt, new { name = "IdMcdt", id = "IdMcdt" })
+                @Html.Hidden("McdtImageStr", new { name = "McdtImageStr", id = "McdtImageStr" })
+                @Html.Hidden("FileHasBeenChanged", "false", new { name = "FileHasBeenChanged", id = "FileHasBeenChanged" })
+                @Html.Hidden("McdtImageName", Model.McdtImageName, new { name = "McdtImageName", id = "McdtImageName" });
+                <div class="col-11 col-centered">
+                    <div class="md-form" style="float:left;width:49%;padding-right:2%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.RequirementNumber, new { @class = "form-control" }) : Html.TextBoxFor(x => x.RequirementNumber, new { @class = "form-control", @readonly = true, id = "RequirementNumber" }))
+                        @Html.LabelFor(x => x.RequirementNumber)
+                    </div>
+
+                    <div class="md-form" style="float:left;width:49%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.Pin, new { @class = "form-control" }) : Html.TextBoxFor(x => x.Pin, new { @class = "form-control", @readonly = true, id = "Pin" }))
+                        @Html.LabelFor(x => x.Pin)
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+              }
+              <h5><strong>Exames</strong></h5>
+              <br />
+                <div id="modalMcdtTable">
+                    @Html.Action("_ModalMcdtTable", new { isReadonly })
+                </div>
+            <hr />
+            @*inicio Trello 1.8.4*@
+            <div>
+                @_WebMedicoHelpers.FileConverterFunction(".mdbc-pickfile", "#McdtImageStr", "#McdtImageName", "#FileHasBeenChanged", "dragandrophandler")
+                @_WebMedicoHelpers.FileEditorDelete(".mdbc-pickfile", "#McdtImageStr", "#McdtImageName", "#FileHasBeenChanged", "dragandrophandler")
+                @_WebMedicoHelpers.DragandDrop(".mdbc-pickfile", "dragandrophandler")
+                @if (!isReadonly) {
+                    <h5><strong>Adicionar Ficheiro</strong></h5>
+                    <hr />
+                    <div class="mdbc-pickfile">
+                        @{
+                            string File = (string.IsNullOrEmpty(Model.McdtImageName)) ? string.Empty : "Ficheiro Selecionado: " + Model.McdtImageName;
+                            string disabled = (File != string.Empty) ? "disabled" : "";
+                            string visible = (File != string.Empty) ? "display:block" : "display:none;";
+                            string dragandropvisible = (File == string.Empty) ? "display:block" : "display:none;";
+                        }
+                        <input type="file" name="fileUploaderControl" id="fileUploaderControl" style="display:none;">
+                        <div style="clear:both"></div>
+                        <div id="dragandrophandler" style="float:left;@dragandropvisible">
+                            <a id="openfiledialog" @disabled>
+                                <strong>Escolha um arquivo</strong> <i class="fa fa-search"></i>
+                            </a>
+                            o Arraste e solte arquivos aqui
+                        </div>
+                        <div style="clear:both"></div>
+                        <p id="txtMessage" style="float:left;">@File</p>
+                        <a id="deletebutton" style="float:left;@visible" href="#" class="material-icons grey-text text-darken-2">delete</a>
+                        <div style="clear:both"></div>
+                    </div>
+                    @_WebMedicoHelpers.ProgressBar("ProgressBarSection","MCDT")
+                } else if (Model.McdtImageName != null) {
+                    <a href="@Url.Action("DownloadMcdt", "Home", new { idConsulta = @ViewBag.idConsulta, idMcdt = @Model.IdMcdt })"
+                       class="btn btn-primary btn-large waves-effect waves-light">
+                        <i class="fa fa-download"></i>Descargar 
+                    </a>
+                    <p>Ficheiro: @Model.McdtImageName</p>
+                    <br />
+                }
+                </div>
+            </div>
+            @if (!isReadonly)
+            {
+                <div class="modal-footer">
+                    <button type="button" class="btn-flat red-text waves-effect" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btnSubmitMcdt" class="btn-flat blue-text waves-effect" form="_mcdt">Submeter</button>
+                </div>
+            }
+            
+        </div>
+        <!--/.Content-->
+</div>
+
+ <script type="text/javascript" language="javascript">
+    //FILE SELECTION. Trello 1.8.4
+    $(document).ready(function () {
+        $('#McdtImageStr').val("");
+    });
+</script>    
+@_WebMedicoHelpers.SubmitWithFileConverter("#modalMCDT", "button#btnSubmitMcdt", "#ProgressBarSection", "_mcdt", "_mcdttable")

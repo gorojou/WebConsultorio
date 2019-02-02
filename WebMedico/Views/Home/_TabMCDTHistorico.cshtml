@@ -1,0 +1,39 @@
+﻿@model IEnumerable<IFarmacias.Models.Response.McdtResponse>
+
+<div class="col-12">
+
+    @if (Model.Any())
+    {
+        <h4><strong>Meios complementares de diagnostico e terapeutica</strong></h4>
+        <div class="col-12 mdbc-nopad text-right">
+            <br />
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr class="grey-text text-darken-1">
+                        <td style="width:50px;" class="text-left">#</td>
+                        <td class="text-left">Exames</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                        <tr>
+                            <td class="text-left">
+                                @item.RequirementNumber
+                            </td>
+                            <td class="mdbc-nopad">
+                                @Html.Action("_TabMCDTProdutosHistorico", new { idConsultaHistorico = ViewBag.idConsultaHistorico, idMcdt = item.IdMcdt })
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        </div>
+    }
+    else
+    {
+        @_WebMedicoFormsHelpers.Naoexistemdados()
+    }
+</div>

@@ -1,0 +1,90 @@
+﻿@using WebMedico.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Home";
+}
+
+@*<h2>@ViewBag.Title.</h2>*@
+<br />
+
+<div class="row justify-content-md-center">
+    <div class="col-md-9 col-lg-6 col-xl-5">
+        <div class="loginForm">
+            <div class="card">
+                <div class="card-block">
+                    <div class="avatar text-center">
+                        <img src="~/Content/Images/logo.png" alt="logo" width="100" height="100" class="mx-auto d-block" />
+                    </div>
+                    <br />
+                    <h3 class="text-center grey-text">Médicos & Farmácias</h3>
+
+                    <br />
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "", role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        if (ViewBag.Error == "Usuário não encontrado")
+                        {
+                            <script type="text/javascript">
+                                window.onload = function () {
+                                    toastr.error('Usuário não encontrado.');
+                                };
+                            </script>
+                        }
+
+                        if (ViewBag.Exito == "Usuário encontrado")
+                        {
+                            <script type="text/javascript">
+                                window.onload = function () {
+                                    toastr.success('Usuário encontrado.');
+                                };
+                            </script>
+                        }
+
+                        <div class="col-10 col-centered">
+                            <div class="md-form">
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                                @Html.LabelFor(m => m.Email, "E-Mail", new { @class = "" })
+                            </div>
+                            <div class="md-form">
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                                @Html.LabelFor(m => m.Password, "Palavra-passe", new { @class = "" })
+                            </div>
+                            @*<fieldset class="form-group">
+                                    <input type="checkbox" class="filled-in" id="checkbox2">
+                                    <label for="checkbox2">Filled-in checkbox</label>
+                                </fieldset>*@
+                            <fieldset class="form-group">
+
+                                @Html.CheckBoxFor(m => m.RememberMe, new { @class = "filled-in" })
+                                @Html.LabelFor(m => m.RememberMe, "Guardar Palavra-passe")
+
+                            </fieldset>
+                            <div class="md-form">
+                                <button type="submit" class="btn btn-primary col-12" onclick="Login(Email,Password);">Entrar</button>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="text-center">
+                            <div class="md-form">
+                                <a href="/Account/Register">Registrar</a>
+                            </div>
+                            <div class="md-form">
+                                <a href="/Account/ForgotPassword">Esqueci Palavra-passe</a>
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

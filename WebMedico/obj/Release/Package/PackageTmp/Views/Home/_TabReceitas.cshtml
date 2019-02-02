@@ -1,0 +1,122 @@
+﻿@model IEnumerable<IFarmacias.Models.Response.RecipesResponse>
+
+<div class="col-12">
+    <h4><strong>Pedidos de receitario medico</strong></h4>
+    <p></p>
+    @*@if (Model.RecipesRequestList != null && Model.RecipesRequestList.Any())
+    {
+        <div class="col-12 text-right">
+            <br />
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <td class="text-left">Nome do medicamento</td>
+                        <td>Quantidade</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RecipesRequestList)
+                    {
+                        <tr>
+                            <td class="text-left">@item.MedicationName</td>
+                            <td>@item.Qtd</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        </div>
+    }
+    else
+    {
+        <div class="col-12">
+            <br />
+            <p>Este utente nao fez pedidos de receitario medico</p>
+            <br />
+        </div>
+    }*@
+
+    <h4><strong>Receitas medicas</strong></h4>
+    @if (Model.Any())
+    {
+        <div class="col-12 mdbc-nopad text-right">
+            <br/>
+            <table class="table z-depth-1 mdbc-table table-hover">
+                <thead>
+                <tr class="grey-text text-darken-1">
+                    <td class="text-left">Numero da receita</td>
+                    <td>Codigo de acceso</td>
+                    <td>Data</td>
+                    <td>Actions</td>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-left">
+                            @item.RecipeNumber
+                        </td>
+                        <td>@item.AccessCode</td>
+                        <td>@item.DateCreated</td>
+
+                        <td>
+                            @Ajax.ActionLink("description", "_ModalViewReceita",
+                            new
+                            {
+                                idConsulta = ViewBag.idConsulta,
+                                idReceita = item.IdRecipes
+                            },
+                            new AjaxOptions()
+                            {
+                                UpdateTargetId = "modalReceita",
+                                InsertionMode = InsertionMode.Replace,
+                                OnSuccess = "onModalLoaded",
+                                OnBegin = "onModalLoading"
+                            },
+                            new
+                            {
+                                @class = "material-icons mdbc-icon-md grey-text text-darken-2",
+                                title = "Detalles",
+                                data_toggle = "modal",
+                                data_target = "#modalReceita"
+                            })
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <br/>
+        </div>
+    }
+    else
+    {
+        <div class="col-12">
+            <br />
+            <p>Ainda nao adicionou receitas medicas</p>
+        </div>
+    }
+
+</div>
+
+<div class="fixed-action-btn">
+    @Ajax.ActionLink("add", "_ModalAddReceita",
+        new
+        {
+            idConsulta = ViewBag.idConsulta
+        },
+        new AjaxOptions()
+        {
+            UpdateTargetId = "modalReceita",
+            InsertionMode = InsertionMode.Replace,
+            OnBegin = "onModalLoading",
+            OnSuccess = "onModalLoaded"
+        },
+        new
+        {
+            @class = "btn-floating btn-large red material-icons white-text",
+            data_toggle = "modal",
+            data_target = "#modalReceita"
+        })
+
+</div>

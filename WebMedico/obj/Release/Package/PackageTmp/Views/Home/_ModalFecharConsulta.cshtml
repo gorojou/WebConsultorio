@@ -1,0 +1,409 @@
+﻿@model WebMedico.Models.BasicInfoViewModel
+
+<link rel="stylesheet" href="~/Content/loader-default.css" />
+
+<style>
+    input[type=date].invalid, input[type=date]:focus.invalid, input[type=datetime-local].invalid, input[type=datetime-local]:focus.invalid, input[type=email].invalid, input[type=email]:focus.invalid, input[type=number].invalid, input[type=number]:focus.invalid, input[type=password].invalid, input[type=password]:focus.invalid, input[type=search-md].invalid, input[type=search-md]:focus.invalid, input[type=search].invalid, input[type=search]:focus.invalid, input[type=tel].invalid, input[type=tel]:focus.invalid, input[type=text].invalid, input[type=text]:focus.invalid, input[type=time].invalid, input[type=time]:focus.invalid, input[type=url].invalid, input[type=url]:focus.invalid, textarea.md-textarea.invalid, textarea.md-textarea:focus.invalid {
+        border-bottom: 1px solid #F44336 !important;
+        box-shadow: 0 1px 0 0 #F44336 !important;
+    }
+</style>
+
+
+<div class="modal fade" id="modalConfirmarConsulta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <h3><strong>Cobrar - Terminar</strong></h3>
+            </div>
+
+            <!--Body-->
+            <div class="modal-body">
+                <p class="black-54">Tem a certeza que deseja terminar la consulta?</p>
+            </div>
+
+            <!--Footer-->
+            <div class="modal-footer">
+                <button type="button" class="btn-flat waves-effect pink-text text-lighten-1" data-toggle="modal" data-target="#modalManterConsulta" data-dismiss="modal">Manter Consulta</button>
+                <a type="button" href="#" onclick="archiveconsultation();" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">Arquivar Consulta</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-body">
+        <div class="loader-default"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalManterConsulta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><strong>Notas ao utente</strong></h3>
+            </div>
+            <div class="modal-body">
+                <div class="md-form">
+                    @Html.LabelFor(m => m.Note, new { @class = "" })
+                    @Html.TextAreaFor(m => m.Note, new { @class = "form-control md-textarea", @id = "notaMedico" })
+                </div>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-flat waves-effect pink-text text-lighten-1" data-toggle="modal" data-target="#modalConfirmarConsulta" data-dismiss="modal">Cancelar</button>
+                <!--
+                   <a type="button" href="#" onclick="keepconsultation();" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">Prosseguir</a>
+                -->
+                <a type="button" href="#" class="btn-flat waves-effect pink-text text-lighten-1 kCons">Prosseguir</a>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="alertMsg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3 id="msgHeader"><strong></strong></h3>
+            </div>
+
+            <div class="modal-body">
+                <div class="md-form">
+                    <label id="message"></label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <!--
+                <button type="button" class="btn-flat waves-effect pink-text text-lighten-1" data-toggle="modal" data-target="#modalConfirmarConsulta" data-dismiss="modal">Entendido</button>
+                -->
+                <button id="msgBtn" type="button" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">Entendido</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-ext mdbc-modal" id="modalFecharConsulta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Facturacao do utente</h4>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                @if (Model.InfoInvoiceResponse != null)
+                {
+                        <div class="col-11 col-centered">
+                            <div class="md-form">
+                                <input type="text" id="nomeFechar" class="form-control validField FecharField" value='@Model.InfoInvoiceResponse.NomeApelido'>
+                                <label for="nomeFechar">Nome</label>
+                            </div>
+                            <br />
+
+                            <div class="md-form">
+                                <input type="text" id="nifFechar" class="form-control validField FecharField" value='@Model.InfoInvoiceResponse.Nif'>
+                                <label for="nifFechar">NIF</label>
+                            </div>
+                            <br />
+
+                            <div class="md-form">
+                                <input type="text" id="moradaFechar" class="form-control validField FecharField" required value=@Model.InfoInvoiceResponse.Morada>
+                                <label for="moradaFechar">Morada</label>
+                            </div>
+                            <br />
+
+                            <div class="md-form">
+                                <input type="text" id="cidadeFechar" class="form-control validField FecharField" value='@Model.InfoInvoiceResponse.Localidade'>
+                                <label for="cidadeFechar">Cidade</label>
+                            </div>
+                            <br />
+
+                            <div class="md-form">
+                                <input type="text" id="codPostalFechar" class="form-control validField FecharField" value=@Model.InfoInvoiceResponse.IdCodigoPostal>
+                                <label for="codPostalFechar">Codigo-postal</label>
+                            </div>
+                            <br />
+                            @*<div class="md-form">
+                        <i class="fa material-icons prefix black-54">wc</i>
+                        @Html.DropDownListFor(m => m.GENDER, new SelectList(new List<Object> { new { value = "M", text = "Masculino" }, new { value = "F", text = "Feminino" } }, "value", "text"), new { @id = "GENDER", @class = "mdb-select dropdown-left-icon" })
+                        @Html.Label("Género", new { @class = "" })
+                    </div>*@
+                            <div class="md-form">
+                                <select class="mdb-select" id="paisFechar">
+                                    <option value="" disabled="" selected=""></option>
+                                    <option value="1">Portugal</option>
+                                    <option value="2">USA</option>
+                                </select>
+                                <label for="paisFechar">Codigo-pais</label>
+                                @*@Html.DropDownListFor(m => m.CodPais, new SelectList(new List<Object> { new { value = "1", text = "Portugal" }, new { value = "2", text = "USA" } }, "value", "text"), new { @id = "paisFechar", @class = "mdb-select" })
+                        @Html.Label("Codigo-pais", new { @class = "" })*@
+
+                            </div>
+                            <br />
+
+                            <div class="md-form">
+                                <select class="mdb-select" id="tipoPedidoFechar">
+                                    <option value="" disabled="" selected=""></option>
+                                    <option value="1">Consulta Gratuita</option>
+                                    <option value="2">Consulta Paga</option>
+                                </select>
+                                <label for="tipoPedidoFechar">Tipo de pedido</label>
+                                @*@Html.DropDownListFor(m => m.TipoPedido, new SelectList(new List<Object> { new { value = "1", text = "Consulta Gratuita" }, new { value = "2", text = "Consulta Paga" } }, "value", "text"), new { @id = "tipoPedidoFechar", @class = "mdb-select" })
+                        @Html.Label("Tipo de pedido", new { @class = "" })*@
+                            </div>
+                        </div>
+
+                  }
+                 else
+                 {
+                    <div class="col-11 col-centered">
+                        <div class="md-form">
+                            <input type="text" id="nomeFechar" class="form-control validField FecharField" value='@Model.Name'>
+                            <label for="nomeFechar">Nome</label>
+                        </div>
+                        <br />
+
+                        <div class="md-form">
+                            <input type="text" id="nifFechar" class="form-control validField FecharField" value='@Model.Nif'>
+                            <label for="nifFechar">NIF</label>
+                        </div>
+                        <br />
+
+                        <div class="md-form">
+                            <input type="text" id="moradaFechar" class="form-control validField FecharField" required value=@Model.Morada>
+                            <label for="moradaFechar">Morada</label>
+                        </div>
+                        <br />
+
+                        <div class="md-form">
+                            <input type="text" id="cidadeFechar" class="form-control validField FecharField" value='@Model.Cidade'>
+                            <label for="cidadeFechar">Cidade</label>
+                        </div>
+                        <br />
+
+                        <div class="md-form">
+                            <input type="text" id="codPostalFechar" class="form-control validField FecharField" value=@Model.CodPostal>
+                            <label for="codPostalFechar">Codigo-postal</label>
+                        </div>
+                        <br />
+                        @*<div class="md-form">
+                    <i class="fa material-icons prefix black-54">wc</i>
+                    @Html.DropDownListFor(m => m.GENDER, new SelectList(new List<Object> { new { value = "M", text = "Masculino" }, new { value = "F", text = "Feminino" } }, "value", "text"), new { @id = "GENDER", @class = "mdb-select dropdown-left-icon" })
+                    @Html.Label("Género", new { @class = "" })
+                </div>*@
+                        <div class="md-form">
+                            <select class="mdb-select" id="paisFechar">
+                                <option value="" disabled="" selected=""></option>
+                                <option value="1">Portugal</option>
+                                <option value="2">USA</option>
+                            </select>
+                            <label for="paisFechar">Codigo-pais</label>
+                            @*@Html.DropDownListFor(m => m.CodPais, new SelectList(new List<Object> { new { value = "1", text = "Portugal" }, new { value = "2", text = "USA" } }, "value", "text"), new { @id = "paisFechar", @class = "mdb-select" })
+                    @Html.Label("Codigo-pais", new { @class = "" })*@
+
+                        </div>
+                        <br />
+
+                        <div class="md-form">
+                            <select class="mdb-select" id="tipoPedidoFechar">
+                                <option value="" disabled="" selected=""></option>
+                                <option value="1">Consulta Gratuita</option>
+                                <option value="2">Consulta Paga</option>
+                            </select>
+                            <label for="tipoPedidoFechar">Tipo de pedido</label>
+                            @*@Html.DropDownListFor(m => m.TipoPedido, new SelectList(new List<Object> { new { value = "1", text = "Consulta Gratuita" }, new { value = "2", text = "Consulta Paga" } }, "value", "text"), new { @id = "tipoPedidoFechar", @class = "mdb-select" })
+                    @Html.Label("Tipo de pedido", new { @class = "" })*@
+                        </div>
+                    </div>
+                 }
+            </div>
+            <!--Footer-->
+            <div class="modal-footer">
+                <button type="button" class="btn-flat blue-text waves-effect" onclick="resetInput()">Limpar Dados</button>
+                <button type="button" class="btn-flat red-text waves-effect btnCobrar" id="btnCobrar" data-dismiss="modal">Cobrar-Terminar</button>
+            </div>
+        </div>
+        <!--/.Content-->
+    </div>
+</div>
+
+
+<script>
+
+    $(".kCons").on("click", function () {
+        if ($('#notaMedico').val().length > 0) {
+
+            $("#modalManterConsulta").modal("hide");
+            keepconsultation();
+
+        } else {
+            displayMessage("Atencao!", "Este campo es obligatorio!");
+        }
+
+    });
+
+    $('.btnCobrar').on("click", function () {
+
+        var invalid = $('.FecharField').filter(function (index) {
+            return $(this).val() === '' || $(this).hasClass('invalid');
+        }).length > 0;
+
+        if (invalid) {
+
+            var notValidField = $('.FecharField').filter(function (index) {
+                return $(this).val() === '' || $(this).hasClass('invalid');
+            });
+
+            var texto = "";
+
+            for (var i = 0; i < notValidField.length; i++) {
+
+                var elementId = notValidField[i].id
+
+                if (!(i == notValidField.length) && (i > 0)) {
+                    texto += ", ";
+                }
+
+                switch (elementId) {
+                    case "nomeFechar":
+                        texto += "\n" + "Nome";
+                        break;
+                    case "nifFechar":
+                        texto += "NIF";
+                        break;
+                    case "moradaFechar":
+                        texto += "Morada";
+                        break;
+                    case "cidadeFechar":
+                        texto += "Cidade";
+                        break;
+                    case "codPostalFechar":
+                        texto += "CodPostal";
+                        break;
+                    case "paisFechar":
+                        texto += "Pais";
+                        break;
+                    case "tipoPedidoFechar":
+                        texto += "Tipo Pedido";
+                        break;
+                }
+            }
+
+            displayMessage("Alerta!", "Certifique-se de completar os seguintes campos: " + texto);
+        } else {
+            $('#modalConfirmarConsulta').modal('toggle');
+
+        }
+    });
+
+    $(document).ready(function () {
+
+
+
+        $('.validField').blur(function (e) {
+            if ($(this).val() == '' || $(this).val() == 0) {
+                $(this).addClass("invalid");
+            } else {
+                $(this).removeClass("invalid");
+            }
+        });
+
+    });
+
+
+
+   function keepconsultation() {
+
+        var param = "";
+
+        param += '&Nome=' + document.getElementById("nomeFechar").value;
+        param += '&Nif=' + document.getElementById("nifFechar").value;
+        param += '&Morada=' + document.getElementById("moradaFechar").value;
+        param += '&Cidade=' + document.getElementById("cidadeFechar").value;
+        param += '&CodigoPostal=' + document.getElementById("codPostalFechar").value;
+        param += '&CodigoPais=' + document.getElementById("paisFechar").value;
+        param += '&TipoPedido=' + document.getElementById("tipoPedidoFechar").value;
+        param += '&Notes=' + document.getElementById("notaMedico").value;
+
+        //location.href = '@Url.Action("MantenerConsult", "Home", new {idConsult = Model.IdConsult})' + '&Notes=' + $('#Note').val()
+        location.href = '@Url.Action("MantenerConsult", "Home", new {idConsult = Model.IdConsult})' + param;
+    }
+
+    function displayMessage(titulo, contenido) {
+        $("#msgHeader").text(titulo);
+        $("#message").text(contenido);
+        $("#alertMsg").modal("show");
+    }
+
+    function archiveconsultation()
+    {
+        $("#pleaseWaitDialog").modal('show');
+
+        var param = "";
+
+        param += '&Nome=' + document.getElementById("nomeFechar").value;
+        param += '&Nif=' + document.getElementById("nifFechar").value;
+        param += '&Morada=' + document.getElementById("moradaFechar").value;
+        param += '&Cidade=' + document.getElementById("cidadeFechar").value;
+        param += '&Nif=' + document.getElementById("codPostalFechar").value;
+        param += '&CodigoPostal=' + document.getElementById("codPostalFechar").value;
+        param += '&CodigoPais=' + document.getElementById("paisFechar").value;
+        param += '&TipoPedido=' + document.getElementById("tipoPedidoFechar").value;
+
+        //alert("param: " + param);
+
+        location.href = '@Url.Action("ArchivarConsult", "Home", new {idConsult = Model.IdConsult})' + param;
+    }
+
+    function resetInput()
+    {
+        document.getElementById("nomeFechar").value = "";
+        document.getElementById("nifFechar").value = "";
+        document.getElementById("moradaFechar").value = "";
+        document.getElementById("cidadeFechar").value = "";
+        document.getElementById("codPostalFechar").value = "";
+
+        setSelect(paisFechar, '');
+        setSelect(tipoPedidoFechar, '');
+    }
+
+    $(document).ready(function () {
+        @*$('#modalFecharConsulta').on('show.bs.modal', function () {
+
+            try {
+                setSelect(paisFechar, @Model.InfoInvoiceResponse.IdCodigoPais.ToString());
+            }
+            catch (err) {
+                setSelect(paisFechar, '');
+            }
+
+            try {
+                setSelect(tipoPedidoFechar, @Model.InfoInvoiceResponse.IdTipoOrden.ToString());
+            }
+            catch (err) {
+                setSelect(tipoPedidoFechar, '');
+            }
+        });*@
+    });
+
+    function setSelect(id, valueParam) {
+        $(id).material_select('destroy');
+        $(id).val(valueParam).change();
+        $(id).material_select();
+    }
+
+</script>

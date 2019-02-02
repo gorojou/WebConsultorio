@@ -1,0 +1,227 @@
+﻿@using IFarmacias.Models.Response
+@model List<ParametersDetailsResponse>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-10 col-centered">
+            @if (Model.Count > 0)
+            {
+                <canvas id="myChart" width="200" height="200"></canvas>
+            }
+            else
+            {
+                <br />
+                <h3 class="text-center">Não existem dados</h3>
+                <br />
+            }
+        </div>        
+    </div>
+    @*<div class="col-md-2">
+        <div class="col-12 text-left">
+            <table>
+                @{
+                    string[] arrLabel = ((string)ViewBag.LabelsDs).Split(',');
+
+                    foreach (var check in arrLabel)
+                    {
+                        <tr>
+                            <td>
+                                <fieldset class="form-group">
+                                    <input type="checkbox" class="filled-in" id="id_@check.Replace("\"", "")" checked="checked" data-dataset="">
+                                    <label for="id_@check.Replace("\"", "")" >@check.Replace("\"", "")</label>
+                                </fieldset>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>*@
+
+</div>
+
+@if (Model.Count > 0)
+{
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-12 text-left">
+            <hr class="my-2">
+            <br />
+            <span class="badge grey">Medicoes</span>
+            <table id="tblMediciones" class="table z-depth-1 mdbc-table table-hover" width="100%">
+                <thead>
+
+                    @{
+                        if (ViewBag.HeaderTable != null)
+                        {
+                            var headerList = ViewBag.HeaderTable as List<string>;
+
+                            <tr class="grey-text text-darken-1">
+                                @{
+                                    bool IsOne = true;
+                                }
+
+                                @foreach (var header in headerList)
+                                {
+
+                                    if (IsOne)
+                                    {
+                                        <td class="text-left">@header</td>
+                                        IsOne = false;
+                                    }
+                                    else
+                                    {
+                                        <td>@header</td>
+                                    }
+                                }
+                            </tr>
+                                    }
+                    }
+                </thead>
+                <tbody>
+                    @{
+                        if (Model != null)
+                        {
+
+                            foreach (ParametersDetailsResponse row in Model)
+                            {
+                                <tr>
+                                    <td class="text-left">@row.MedicationDate.Value.ToShortDateString() @row.MedicationTime.Value.ToString()</td>
+
+                                    @switch ((string)ViewBag.ParameterName)
+                                    {
+                                        case "Colesterol":
+                                            <td>@row.ColesterolTotal</td>
+                                            <td>@row.ColesterolTrigliceridos</td>
+                                            <td>@row.ColesterolHdl</td>
+                                            <td>@row.ColesterolLdl</td>
+                                            break;
+                                        case "Glicemia":
+                                            <td>@row.GlicemiaValue</td>
+                                            <td>@row.GlicemiaContext</td>
+                                            break;
+                                        case "Insulina":
+                                            <td>@row.InsulinUI</td>
+                                            <td>@row.Insulin</td>
+                                            <td>@row.InsulinContext</td>
+                                            break;
+                                        case "Peso e Medidas":
+                                            <td>@row.WmWeight</td>
+                                            <td>@row.WmBmi</td>
+                                            <td>@row.WmChest</td>
+                                            <td>@row.WmWaist</td>
+                                            <td>@row.WmHips</td>
+                                                        <td>@row.WmLeftArm</td>
+                                                        <td>@row.WmRightArm</td>
+                                                        <td>@row.WmLeftLeg</td>
+                                                        <td>@row.WmRightLeg</td>
+                                            break;
+                                        case "Tensao Arterial":
+                                            <td>@row.BloodPressureMin</td>
+                                            <td>@row.BloodPressureMax</td>
+                                            <td>@row.BloodPressureHeartRate</td>
+                                            break;
+                                        default:
+                                            <td>@row.ValueDefault</td>
+                                            break;
+                                    }
+
+                                    <td>@row.Observation</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    var dataR = [];
+    var ctx = document.getElementById("myChart");
+    var data = {
+        labels: [@Html.Raw(ViewBag.LabelsGraph)],
+        datasets: [@Html.Raw(ViewBag.cadJS)]
+    };
+
+    $(document).ready(function () {
+        executeGraph(data);
+    });
+
+    function executeGraph(data) {
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                // set font color
+                scaleFontColor: "#fff",
+                // font family
+                defaultFontFamily: "'Roboto', sans-serif",
+                // background grid lines color
+                scaleGridLineColor: "rgba(255,255,255,.1)",
+                // hide vertical lines
+                scaleShowVerticalLines: false,
+                //legend: false,
+                legend: {
+                    position: 'right'//'right'
+                },
+                legendCallback: function (chart) {
+                    // Return the HTML string here.
+                    //var text = [];
+                    //text.push('<ul class="' + chart.id + '-legend">');
+                    //for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                    //    text.push('<li><span style="background-color:' + chart.data.datasets[0].backgroundColor[i] + '">');
+                    //    if (chart.data.labels[i]) {
+                    //        text.push(chart.data.labels[i]);
+                    //    }
+                    //    text.push('</span></li>');
+                    //}
+                    //text.push('</ul>');
+                    //return text.join("");
+                }
+
+            }
+        });
+    }
+
+    $("input:checkbox").each(function (key, valueInput) {
+        var id = $(valueInput).attr('id');
+        var name = id.split("id_")[1];
+
+        $.each(data.datasets, function (key, value) {
+            if (name == value.label) {
+                // console.log(valueInput);
+                $(valueInput).attr("data-dataset", key);
+            }
+        });
+    });
+
+    $("input:checkbox").click(function () {
+
+        dataR = [];
+
+        $("input:checkbox").each(function (key, value) {
+            console.log(key);
+            //console.log(value);
+
+            var ischeck = $(value).is(':checked');
+            var id = $(value).attr('id');
+            var name = id.split("id_")[1];
+            var dataset = $(value).attr('data-dataset');
+
+            if (ischeck) {
+                dataR.push(data.datasets[dataset]);
+            }
+        });
+        
+        var dataN = {
+            labels: [@Html.Raw(ViewBag.LabelsGraph)],
+            datasets: dataR
+        };
+
+        executeGraph(dataN);
+    });
+
+</script>
+}

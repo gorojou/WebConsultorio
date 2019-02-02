@@ -1,0 +1,54 @@
+﻿@model IEnumerable<IFarmacias.Models.Response.RecipesResponse>
+
+<div class="col-12">
+
+    @if (Model.Any())
+    {
+        <h4><strong>Pedidos de receitario medico</strong></h4>
+        <p></p>
+
+
+        <h4><strong>Receitas medicas</strong></h4>
+        <div class="col-12 mdbc-nopad text-right">
+            <br />
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr class="grey-text text-darken-1">
+                        <td style="width:50px;" class="text-left">#</td>
+                        <td class="text-left">Produtos</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                {
+                        <tr>
+                            <td class="text-left">
+                                @item.RecipeNumber
+                            </td>
+                            <td  class="mdbc-nopad">
+                                @Html.Action("_TabReceitasProdutosHistorico", new { idConsultaHistorico = ViewBag.idConsultaHistorico, idRecipe = item.IdRecipes })
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        </div>
+    }
+    else
+    {
+        <div class="col-4 offset-4 text-center">
+            <br />
+            <br />
+            <br />
+            <br />
+            <div class="offset-1 col-10">
+                <img class="col-12" src="~/Content/Images/logo.png" />
+            </div>
+            <br />
+            <h3>Não existem dados</h3>
+        </div>
+    }
+
+</div>

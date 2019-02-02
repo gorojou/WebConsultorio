@@ -1,0 +1,98 @@
+﻿@using WebMedico.Models
+@using WebMedico.Helpers
+@model LoginViewModel
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+@_WebMedicoFormsHelpers.FormValidationStyles()
+<br />
+<div class="row justify-content-md-center">
+    <div class="col-md-9 col-lg-6 col-xl-5">
+        <div class="loginForm">
+            <div class="card">
+                <div class="card-block">
+                    <div class="avatar text-center">
+                        <img src="~/Content/Images/logo.png" alt="logo" width="180" height="180" class="mx-auto d-block" />
+                    </div>
+                    <br />
+                    <h4 class="text-center grey-text">@ResourcesAccount.ReservedforProfessionals</h4>
+                    <br />
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "", role = "form" }))
+                    {
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        if (ViewBag.Error == "Usuário não encontrado")
+                        {
+                            <div class="modal fade" id="modalUsuarioNaoEncontrado" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <!--Header-->
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <h4 class="modal-title w-100" id="myModalLabel">@ResourcesAccount.ConfirmLogin</h4>
+                                        </div>
+
+                                        <!--Body-->
+                                        <div class="modal-body">
+
+                                            Usuário não encontrado
+                                        </div>
+
+                                        <!--Footer-->
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">@ResourcesAccount.Understood</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript">
+                                window.onload = function () {
+                                    $('#modalUsuarioNaoEncontrado').modal();
+                                };
+                            </script>
+                        }
+                        if (ViewBag.Exito == "Usuário encontrado")
+                        {
+                            Response.Redirect("~/Home/Index");
+                        }
+                        <div class="col-10 col-centered">
+                            @Html.TexboxBlockFor(m=>m.Email)
+                            @Html.PasswordBlockFor(m=>m.Password,true)
+                            <br/>
+                            <fieldset class="form-group">
+                                @Html.CheckBoxFor(m => m.RememberMe, new { @class = "filled-in" })
+                                @Html.LabelFor(m => m.RememberMe)
+                            </fieldset>
+                            <div class="md-form">
+                                <button type="submit" class="btn btn-sm mdbc-btn-fullwidth mdbc-nomargin btn-primary col-12">@ResourcesAccount.Login</button>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="text-uppercase row">
+                            <div class="col-sm-12 row">
+                                <div class="col-sm-8">
+                                    <br />
+                                    <a href="/Account/ForgotPassword" class="btn-flat waves-effect red-text">
+                                        @ResourcesAccount.ForgotPassword
+                                    </a>
+                                </div>
+                                <div class="col-sm-4">
+                                    <br />
+                                    <a href="/Account/Register" class="btn-flat waves-effect blue-text">
+                                        @ResourcesAccount.Register
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}

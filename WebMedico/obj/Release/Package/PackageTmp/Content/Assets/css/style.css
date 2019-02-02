@@ -1,0 +1,117 @@
+/* YOUR CUSTOM STYLES */
+
+/*table {
+    border-collapse: collapse;
+}
+
+td {
+    margin: 0px;
+    padding: 5px;
+    text-align: left;
+    border: 1px solid #080808;
+}*/
+
+.border {
+    border: 1px solid #080808;
+}
+
+.noborders td {
+    border: 0;
+}
+
+.card-table-head {
+    background-color: #f7f7f7;
+}
+
+    .card-table-head th {
+        padding: 1.5em 1em 1.5em 1em;
+        border-bottom: 0px !important;
+    }
+
+.card-table-body {
+    
+}
+    .card-table-body td {
+        padding: 0.1rem;
+      
+    }
+.nasted-table {
+    padding-top: 1rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    border-bottom: 1px solid rgba(0,0,0,.1) !important;
+}
+
+.card-table-body.hover > tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.card-table-body.hover .table{
+    background-color:transparent !important;
+}
+
+.online {
+    color: #7ed11f !important;
+}
+.offline {
+    color: #878887 !important;
+}
+
+.male {
+    color: #62aeea;
+}
+.female {
+    color: #ea62a0;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.black-54 {
+    color: rgba(0, 0, 0, 0.54) !important;
+}
+
+.black-37 {
+    color: rgba(0, 0, 0, 0.37) !important;
+}
+
+body {
+    background-color: #eaeaea !important;
+}
+
+.no-padding-bottom {
+    padding-bottom: 0rem;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0rem;
+}
+
+.padding-top-dense {
+    padding-top: 0.5rem;
+}
+
+.md-form .prefix {
+    font-size: 24px;
+    line-height: 48px;
+}
+
+.material-icons-36 {
+    font-size: 36px;
+}
+
+.material-icons-48 {
+    font-size: 48px;
+}
+
+.dropdown-left-icon {
+    margin-left: 3rem;
+}
+
+.blue {
+    background-color: #04abe9 !important;
+}
+
+

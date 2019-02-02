@@ -1,0 +1,102 @@
+﻿@model IEnumerable<IFarmacias.Models.PatientHistoryInfoResponse>
+<script>
+    function enmascarar(estatus) {
+
+        var estado = "";
+
+        switch (estatus) {
+            //Status code: 1
+            case "Open":
+                estado = "Aberto";
+                break;
+            //Status code: 2
+            case "InProgress":
+                estado = "Consulta em progresso";
+                break;
+            //Status code: 3
+            case "Invoiced":
+                estado = "Consulta concluída";
+                break;
+            //Status code: 4
+            case "Scheduled":
+                estado = "Consulta agendada";
+                break;
+            //Status code: 5
+            case "Closed":
+                estado = "Consulta concluida, foi solicitado o retorno";
+                break;
+            //Status code: 6
+            case "KeepInvoiced":
+                estado = "Aguarda retorno";
+                break;
+            //Status code: 7
+            case "CanceledByPatient":
+                estado = "Cancelado pelo paciente";
+                break;
+            //Status code: 8
+            case "KeepConsultation":
+                estado = "Aguarda retorno";
+                break;
+            default:
+                estado = "status desconhecido";
+                break;
+        }
+        return estado;
+    }
+</script>
+
+
+@if (Model != null && Model.Any())
+{
+    <div class="col-12">
+        <h4><strong>Histórico de consultas do paciente</strong></h4>
+        <div class="col-12 mdbc-nopad text-right">
+            <br />
+            <table class="table z-depth-1 mdbc-table table-hover">
+                <thead>
+                    <tr class="grey-text text-darken-1">
+                        <td class="text-left">Motivo</td>
+                        <td class="text-left">Nome do médico</td>
+                        <td class="text-left">Estado</td>
+                        <td class="text-left">Data</td>
+                        <td class="text-left">Ver</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-left">@item.Description</td>
+                            <td class="text-left grey-text">@item.MedicName</td>
+                            <td class="text-left grey-text">
+                                @_WebMedicoHelpers.Enmascarar(item.Status)
+                            </td>
+                            <td class="text-left grey-text">@item.Date.ToString("dd/MM/yyyy hh:mm tt")</td>
+                            <td>@Ajax.ActionLink("description", "_ModalViewHistorico", item,
+                                 new AjaxOptions()
+                                 {
+                                     UpdateTargetId = "modalHistorico",
+                                     InsertionMode = InsertionMode.Replace,
+                                     OnSuccess = "onModalLoaded",
+                                     OnBegin = "onModalLoading",
+                                     OnComplete = "onModalHistoricoLoaded"
+                                 },
+                                 new
+                                 {
+                                     @class = "material-icons mdbc-icon-md grey-text text-darken-2",
+                                     title = "Detalles",
+                                     data_toggle = "modal",
+                                     data_target = "#modalHistorico"
+                                 })
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    @_WebMedicoFormsHelpers.TabEmptyStateHistorico()
+}

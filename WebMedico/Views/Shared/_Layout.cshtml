@@ -1,0 +1,274 @@
+﻿@using WebMedico.Hubs
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title Health Link International LTD</title>
+    @Scripts.Render("~/bundles/jquery")
+    @Styles.Render("~/css/css")
+    <style>
+        .material-icons {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin-bottom: 5px;
+        }
+
+        #conversationsList {
+            max-height: 350px;
+            overflow:auto;
+        }
+    </style>
+</head>
+
+<body class="hidden-sn white-skin">
+    <div class="not-available hidden-md-up">
+        <div>
+            <div class="card">
+                <div class="card-block">
+                    <div class="avatar text-center">
+                        <img src="~/Content/Images/logo.png" alt="logo" width="100" height="100" class="mx-auto d-block" />
+                    </div>
+                    <br />
+                    <h3 class="text-center grey-text">Não disponível nesta resolução</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Close Session -->
+    <div class="modal fade" id="modalCloseSession" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <h3><strong>Terminar sesao</strong></h3>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                    <p class="black-54">Tem a certeza que deseja terminar a sessão?</p>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer">
+                    <a type="button" href="/" onclick="location.href = '@Url.Action("LogOff", "Account")'" class="btn-flat waves-effect" style="color: #FE2E9A" data-dismiss="modal">Sim</a>
+                    <a type="button" href="/" class="btn-flat waves-effect" style="color: #FE2E9A" data-dismiss="modal">Nao</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @RenderSection("modals", required: false)
+
+    <header>
+        <!-- Sidebar navigation -->
+        <ul id="slide-out" class="side-nav  custom-scrollbar ">
+
+            <!-- Logo -->
+            <li>
+                <div class="user-box">
+                    <div align="center">
+                        @if (HttpContext.Current.Session["PHOTO"] != null)
+                        {
+                            @_WebMedicoHelpers.ShowIMageFromString(".user-box", "photo", HttpContext.Current.Session["PHOTO"].ToString(), 354)
+                        }
+                        else
+                        {
+                            <img src="~/Content/Images/default-userimg.jpg" class="img-fluid rounded-circle">
+                        }
+                    </div>
+                    @if (HttpContext.Current.User is WebMedico.Models.CustomPrincipal)
+                    {
+                        <p class="user text-center black-text">
+                            <strong>
+                                @(((WebMedico.Models.CustomPrincipal)HttpContext.Current.User).Name) @(((WebMedico.Models.CustomPrincipal)HttpContext.Current.User).LastName)
+                            </strong>
+                            <br />
+                            @(((WebMedico.Models.CustomPrincipal)HttpContext.Current.User).Email)
+                        </p>
+                    }
+                </div>
+            </li>
+            <!--/. Logo -->
+            <!-- Side navigation links -->
+            <li>
+                <ul class="collapsible collapsible-accordion">
+                    <li>
+                        <a class="waves-effect" href="@Url.Action("Index", "Home")"><i class="fa fa-user-md prefix black-54"></i>&emsp;<strong>Sala de espera</strong></a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" onclick="location.href ='@Url.Action("PatientHistoricalRecord", "Home")'"><i class="material-icons black-37">description</i>&emsp;<strong>Histórico</strong></a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" onclick="location.href ='@Url.Action("BillingView", "Billing")'"><i class="material-icons black-37">receipt</i>&emsp;<strong>Faturacão</strong></a>
+                    </li>
+                    <li>
+                        <a class="waves-effect"><i class="material-icons black-37">settings</i>&emsp;<strong>Definicões</strong></a>
+                    </li>
+                    <li>
+                        <a class="waves-effect" data-toggle="modal" data-target="#modalCloseSession"><i class="material-icons black-37">exit_to_app</i>&emsp;<strong>Terminar sessão</strong></a>
+                    </li>
+                </ul>
+            </li>
+            <!--/. Side navigation links -->
+            <div class="sidenav-bg mask-strong"></div>
+        </ul>
+        <!--/. Sidebar navigation -->
+        <!--Navbar-->
+        <nav class="navbar fixed-top navbar-toggleable-md navbar-dark scrolling-navbar double-nav blue">
+
+            <!-- SideNav slide-out button -->
+            <div class="float-left">
+                <a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons white-text">menu</i></a>
+            </div>
+            <div class="breadcrumb-dn mr-auto">
+                <p class="text-white"><strong>Medicos &amp; Farmácias</strong></p>
+            </div>
+
+            <!--Navbar links-->
+            <ul class="nav navbar-nav nav-flex-icons ml-auto">
+                <li class="nav-item dropdown">
+                    @*<a class="text-white nav-link dropdown-toggle waves-effect waves-light " href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="badge red">99</span> <i class="material-icons text-white">notifications</i>
+                            <span class="hidden-sm-down"></span>
+                        </a>*@
+                    <div class="dropdown-menu header-notifications animated dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
+                        <ul>
+                            Notificacões
+                            <li class="active-notification"><i class="fa fa-user" aria-hidden="true"></i> New order received <span class="float-right grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> 13 min</span></li>
+                            <li class="active-notification"><i class="fa fa-user" aria-hidden="true"></i> New order received <span class="float-right grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> 51 min</span></li>
+                            <li class="active-notification"><i class="fa fa-bullhorn" aria-hidden="true"></i> Your campaign is about to end <span class="float-right grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> 3 hours</span></li>
+                            <li class="active-notification"><i class="fa fa-line-chart" aria-hidden="true"></i> Raport is ready to be downloaded <span class="float-right grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> 1 day</span></li>
+                            <li class="active-notification"><i class="fa fa-life-saver" aria-hidden="true"></i> Something else <span class="float-right grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> 1 day</span></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="messageNotifications">
+                    <!--Notificaciones-->
+                    @*@Html.Action("GetMessagesNotifications")*@
+                </li>
+
+            </ul>
+            <!--/Navbar links-->
+
+        </nav>
+        <!--/.Navbar-->
+    </header>
+
+    <main>
+        <div class="container-fluid body-content">
+            @RenderBody()
+        </div>
+    </main>
+
+    @*<footer class="page-footer blue center-on-small-only fixed-bottom">
+            <p>&emsp; &copy; @DateTime.Now.Year Health Link International LTD</p>
+        </footer>*@
+
+    @Scripts.Render("~/bundles/tether")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/session")
+    @Scripts.Render("~/bundles/mdb")
+    <script src="~/Content/Assets/js/mbdc.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/common/v0.1/twilio-common.min.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/chat/v1.0/twilio-chat.js"></script>
+    <script src="~/Content/Assets/js/components/twilio-chat.js"></script>
+    @RenderSection("scripts", required: false)
+    <script>
+        $('.datepicker').pickadate({
+            today: 'Hoje',
+            clear: 'Limpar',
+            close: 'Cancelar',
+        });
+
+        var states = [
+            "Brasil",
+            "Portugal",
+            "Venezuela",
+            "Chile",
+            "Argentina"
+        ];
+        $(document).ready(function () {
+            $('.mdb-select').material_select();
+            $('.mdb-autocomplete').mdb_autocomplete({
+                data: states
+            });
+
+            var callwatch = (function () {
+                var timer = 0;
+                return function (callback, ms) {
+                    clearTimeout(timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+
+            @{
+                string IdDoctor = string.Empty;
+                try {
+                    IdDoctor = ((WebMedico.Models.CustomPrincipal)HttpContext.Current.User).IdDoctor.ToString();
+                }
+                catch (Exception) {
+                    IdDoctor = "Anonimous";
+                }
+             }
+
+            var drIdentity = 'dr@(IdDoctor)';
+
+            //rmarquis. Original 500
+            var chatManager = new TwilioChatManager({
+                urlTokenEndpoint: '@System.Web.Configuration.WebConfigurationManager.AppSettings["ApiUrl"]/api/GenerateChatToken',
+                            identity: drIdentity,
+                            onMemberUpdated: function () {
+
+                                callwatch(function () {
+                        @*$.get('@Url.Action("GetMessagesNotifications")', function (data) {
+                            $("#messageNotifications").html(data);
+                    });*@
+                    }, 500);
+                },
+                onNewMessage: function (message) {
+                    if (message.author !== drIdentity) {
+                        callwatch(function () {
+                            @*$.get('@Url.Action("GetMessagesNotifications")', function (data) {
+                                $("#messageNotifications").html(data);
+
+                                var messageChannelState = message.channel.state;
+
+                                //$("#messageNotifications [data-channelid*='" + message.author + "']").click();
+                                chatManager.openConversation(messageChannelState.uniqueName, messageChannelState.friendlyName, false);
+                            });*@
+                        }, 100);
+                    }
+                }
+            });
+
+            $(document).on('click', '#conversationsList li', function () {
+                    chatManager.openConversation($(this).data('channelid'), $('.title', this).text(), true);
+                });
+
+        });
+    </script>
+    <script>
+        // SideNav init
+        new WOW().init();
+        $(".button-collapse").sideNav();
+        var el = document.querySelector('.custom-scrollbar');
+        Ps.initialize(el);
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "@Url.Action("GetMessagesNotifications")",
+                success: function (result) {
+                    $('#messageNotifications').html(result);
+                }
+            });
+
+
+
+        });
+
+    </script>
+</body>
+</html>

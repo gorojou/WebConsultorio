@@ -1,0 +1,13 @@
+﻿﻿@model List<IFarmacias.Models.AttachmentInfoResponse>
+
+<div class="docs-gallery">
+    <h3 class="grey-text text-darken-1">Imagens</h3>
+    <ul id="gallery" class="docs-pictures clearfix">
+
+        @foreach (var item in Model)
+        {
+            <li><img data-original="@item.Files" src="@item.Files" alt="Attatchment @item.IdAttachments"></li>
+        }
+
+    </ul>
+</div>

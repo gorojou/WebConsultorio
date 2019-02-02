@@ -1,0 +1,135 @@
+﻿@using IFarmacias.Models.Response;
+@using WebMedico.Models.Consults;
+@model IFarmacias.Models.Response.RecipesResponse
+@{
+    bool isEdit = Model.IdRecipes > 0;
+    bool isReadonly = ViewBag.Readonly != null && ViewBag.Readonly == true;
+
+    HtmlString modalTitle;
+
+    if (isReadonly) { modalTitle = new HtmlString("Ver"); }
+    else if (isEdit) { modalTitle = new HtmlString("Editar"); }
+    else { modalTitle = new HtmlString("Inserir"); }
+}
+@Scripts.Render("~/bundles/md5")  
+<div class="modal-dialog modal-lg" role="document">
+    <!--Content-->
+    <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+
+            <div class="btn-group mdbc-modal-action">
+                @if (isReadonly)
+                {
+                    @Ajax.ActionLink("edit", "_ModalEditReceita",
+                    new
+                    {
+                        idConsulta = ViewBag.idConsulta,
+                        idReceita = Model.IdRecipes
+                    },
+                    new AjaxOptions()
+                    {
+                        UpdateTargetId = "modalReceita",
+                        InsertionMode = InsertionMode.Replace,
+                        OnSuccess = "onModalLoaded",
+                        OnBegin = "onModalLoading"
+                    },
+                    new
+                    {
+                        @class = "material-icons",
+                        data_target = "#modalReceita"
+                    })
+                    <!--Trigger-->
+                    <a class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">more_vert</a>
+
+                        <!--Menu-->
+                        <div class="dropdown-menu dropdown-menu-right">
+                            @Ajax.ActionLink("Eliminar", "DeleteReceita",
+                        new
+                        {
+                            idConsulta = ViewBag.idConsulta,
+                            idReceita = Model.IdRecipes
+                        },
+                        new AjaxOptions()
+                        {
+                            UpdateTargetId = "panelReceitas",
+                            InsertionMode = InsertionMode.Replace,
+                            OnFailure = "onModalError",
+                            OnComplete = "onModalSubmited",
+                            OnBegin = "confirmAction"
+                        },
+                        new
+                        {
+                            data_toggle = "popover",
+                            data_placement = "bottom",
+                            data_content = "Tem certeza que deseja remover o receita?",
+                            title = "Confirmar",
+                            @class = "dropdown-item"
+                        })
+                        </div>
+                }
+                <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+            </div>
+            <h4 class="modal-title" id="myModalLabel">@modalTitle receita</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+            @using (Ajax.BeginForm("AddEditReceita", "Home",
+             new { idConsulta = ViewBag.idConsulta },
+             new AjaxOptions() { UpdateTargetId = "panelReceitas",InsertionMode = InsertionMode.Replace,OnFailure = "onModalError",OnSuccess = "onModalSubmited",OnBegin = "disableAll",OnComplete = "onModalLoaded"}, 
+             new { id = "_receita" }))
+            {
+                <h5><strong>Dados gerais da receita</strong></h5>
+                <br />
+                @Html.HiddenFor(x => x.IdRecipes, new { name = "IdRecipes", id = "IdRecipes" })
+                @Html.Hidden("RecipeImageId", Model.RecipeImageId, new { name = "RecipeImageId", id = "RecipeImageId" })
+                @Html.Hidden("RecipeImageName", Model.RecipeImageName, new { name = "RecipeImageName", id = "RecipeImageName" });
+                <div class="col-11 col-centered">
+                    <div class="md-form" style="float:left;width:32%;;padding-right:2%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.RecipeNumber, new { @class = "form-control" }) : Html.TextBoxFor(x => x.RecipeNumber, new { @class = "form-control", @readonly = true, id = "RequirementNumber" }))
+                        @Html.LabelFor(x => x.RecipeNumber)
+                    </div>
+                    <div class="md-form" style="float:left;width:32%;;padding-right:2%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.AccessCode, new { @class = "form-control" }) : Html.TextBoxFor(x => x.AccessCode, new { @class = "form-control", @readonly = true, id = "AccessCode" }))
+                        @Html.LabelFor(x => x.AccessCode)
+                    </div>
+                    <div class="md-form" style="float:left;width:32%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.RightOptionCode, new { @class = "form-control" }) : Html.TextBoxFor(x => x.RightOptionCode, new { @class = "form-control", @readonly = true, id = "RightOptionCode" }))
+                        @Html.LabelFor(x => x.RightOptionCode)
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            }
+            <!--Body-->
+            <hr />
+            <h5><strong>Medicamentos</strong></h5>
+            <br />
+            <div id="modalReceitaTable">
+                @Html.Action("_ModalReceitaTable", new { isReadonly })
+            </div>
+            <span id="ModalReceitaTableCountValidator" style="color:red;"></span>
+            <hr />
+            <div>
+                @if (!isReadonly)
+                {
+                    @_WebMedicoHelpers.FileUploadControl("uploadfileform", Model.RecipeImageName)
+                }
+                else if (Model.RecipeImageName != null) {
+                    @_WebMedicoHelpers.FileDownloadControl(Url.Action("DownloadRecipe", "Home", new { idConsulta = ViewBag.idConsulta, idRecipes = Model.IdRecipes }), Model.RecipeImageName)
+                }
+                @_WebMedicoHelpers.FileUploadScripts(ViewBag.ApiUrl, ".mdbc-pickfile", "#RecipeImageId", "#RecipeImageName", "dragandrophandler")
+            </div>
+        </div>
+        @if (!isReadonly)
+        {
+            <!--Footer-->
+            <div class="modal-footer">
+                <button type="button" class="btn-flat red-text waves-effect" data-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnSubmitReceita" class="btn-flat blue-text waves-effect" form="_receita">Submeter</button>
+            </div>
+        }
+        <div class="modal-loading"></div>
+    </div>
+    <!--/.Content-->
+</div>
+@_WebMedicoHelpers.SubmitWithFileConverter("#modalReceita div.modal-body", "button#btnSubmitReceita", "#ProgressBarSection", "form#_receita", "form#_receitable", "ReceitaProductsCount", "div#modalReceita div.modal-dialog div.modal-content div.modal-body span#ModalReceitaTableCountValidator", "Deve haver pelo menos uma receita")

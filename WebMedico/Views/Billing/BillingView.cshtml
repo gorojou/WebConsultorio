@@ -1,0 +1,82 @@
+﻿@model WebMedico.Models.BillingViewModel
+
+@{
+    ViewBag.Title = "BillingView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="col-12" style="background-color:white">
+    @if (Model != null && Model.BillingList.Any())
+    {
+
+        <div class="col-12 mdbc-nopad text-left">
+            <br />
+            <h4><strong>A minha facturação</strong></h4>
+            <br />
+            <table class="table z-depth-1 mdbc-table table-hover">
+                <thead>
+                    <tr>
+
+                        <th align="center"><strong> Numero da  fatura </strong></th>
+                        <th align="center"><strong> Nome do utente    </strong></th>
+                        <th align="center"><strong> Data              </strong></th>
+                        <th align="center"><strong> Fechado           </strong></th>
+                        <th align="center"><strong> Pago              </strong></th>
+                        <th align="center"><strong> Valor             </strong></th>
+                        @*<th><i class="material-icons black-37">search</i></th>*@
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.BillingList)
+                    {
+
+                        <tr>
+                            <td style="width:16.6%;"><strong>@item.ID_PAYMENTS</strong></td>
+                            <td style="width:16.6%;"><strong>@item.clientName</strong></td>
+                            <td style="width:16.6%;"><strong>@item.DATE_CREATED.ToString("dd/MM/yyyy")</strong></td>
+                            <td style="width:16.6%;"><strong>@item.fechado</strong></td>
+                            <td style="width:16.6%;"><strong>@item.pago</strong></td>
+                            <td style="width:16.6%;"><strong>@item.TOTAL</strong>$</td>
+                            @*<td>
+                                @Ajax.ActionLink("description", "_ModalViewHistorico", item,
+                                    new AjaxOptions()
+                                    {
+                                        UpdateTargetId = "modalHistorico",
+                                        InsertionMode = InsertionMode.Replace,
+                                        OnSuccess = "onModalLoaded",
+                                        OnBegin = "onModalLoading",
+                                        OnComplete = "onModalHistoricoLoaded"
+                                    },
+                                        new
+                                        {
+                                            @class = "material-icons mdbc-icon-md grey-text text-darken-2",
+                                            title = "Detalles",
+                                            data_toggle = "modal",
+                                            data_target = "#modalHistorico"
+                                        })
+                            </td>*@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        </div>
+    }
+    else
+    {
+        <div class="col-4 offset-4 text-center">
+            <br />
+            <br />
+            <br />
+            <br />
+            <div class="offset-1 col-10">
+                <img class="col-12" src="~/Content/Images/logo.png" />
+            </div>
+            <br />
+            <h3>Não existem dados</h3>
+            <br />
+
+        </div>
+    }
+</div>

@@ -1,0 +1,845 @@
+﻿@using System.Linq.Expressions
+@helper FormValidationStyles() { 
+
+    <style>
+        .field-validation-error {
+            color: #e80c4d;
+            float:right;
+        }
+        .field-validation-valid {
+            display: none;
+        }
+        input.input-validation-error {
+            border-bottom: 1.5px solid #e80c4d;
+        }
+        input[type="checkbox"].input-validation-error {
+            border: 0 none;
+        }
+        .validation-summary-errors {
+            color: #e80c4d;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .validation-summary-valid {
+            display: none;
+        }
+
+        .toggler-ico {
+            border: none;
+            background: none;
+            padding: 0;
+            width: 60%;
+            position: absolute;
+            left:90%;
+            top: 35%;
+        }
+
+    </style>
+}
+@helper Registerstyles()
+{
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <style>
+        .something {
+            display: none;
+            width: 100px;
+            height: 100px;
+            background: #ccc;
+            border: 1px solid #000;
+        }
+    </style>
+    <style>
+        /* Style for overlay and box */
+        .overlay {
+            background: transparent url(../../Content/Images/overlay.png) repeat top left;
+            position: fixed;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            z-index: 100;
+        }
+
+        .box {
+            position: fixed;
+            top: -200px;
+            left: 30%;
+            right: 30%;
+            background-color: #fff;
+            color: #7F7F7F;
+            padding: 20px;
+            border: 2px solid #ccc;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            -moz-box-shadow: 0 1px 5px #333;
+            -webkit-box-shadow: 0 1px 5px #333;
+            z-index: 101;
+        }
+
+            .box h1 {
+                border-bottom: 1px dashed #7F7F7F;
+                margin: -20px -20px 0px -20px;
+                padding: 10px;
+                background-color: #FFEFEF;
+                color: #EF7777;
+                -moz-border-radius: 20px 20px 0px 0px;
+                -webkit-border-top-left-radius: 20px;
+                -webkit-border-top-right-radius: 20px;
+            }
+
+        a.boxclose {
+            float: right;
+            width: 26px;
+            height: 26px;
+            background: transparent url(../../Content/Images/cancel.png) repeat top left;
+            margin-top: -30px;
+            margin-right: -30px;
+            cursor: pointer;
+        }
+    </style>
+    <style>
+        .mdbc-pickphoto {
+            text-align: center;
+            padding: 10px 10px;
+        }
+
+            .mdbc-pickphoto img {
+                border-radius: 50% !important;
+                min-height: 57%;
+            }
+
+            .mdbc-pickphoto button {
+                margin: 0;
+                margin-top: -20px;
+                font-size: .55rem;
+                padding: .5rem .6rem !important;
+            }
+
+                .mdbc-pickphoto button i {
+                    font-size: .6rem !important;
+                }
+
+        .mdbc-register .md-form .prefix {
+            margin-left: 1.5rem;
+        }
+
+            .mdbc-register .md-form .prefix ~ label {
+                margin-left: 6.1rem;
+            }
+
+            .mdbc-register .md-form .prefix ~ input, .mdbc-register .md-form .prefix ~ textarea {
+                margin-left: 6.1rem;
+                width: calc(100% - 6.1rem);
+            }
+
+        .mdbc-register .md-form .dropdown-left-icon {
+            margin-left: 6.1rem;
+        }
+
+        .mdbc-register .md-form .dropdown-left-icon {
+            margin-left: 6.1rem;
+        }
+    </style>
+}
+
+@helper ImageCropper(string Apiurl, string container,string hiddenfield,string addfiletext, string croptitle, string cropinstructions, string croperror, string croptext)
+{
+   <style>
+       #imageCanvas {
+           width: 300px;
+           height: 300px;
+           background: white;
+           image-rendering: pixelated;
+       }
+        #cropCanvas {
+            width: 100px;
+            height: 100px;
+        }
+        #imageCanvas,
+        [class^='canvasScreen'] {
+            pointer-events: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+       .canvasCon {
+           position: relative;
+           width: 300px;
+           height: 300px;
+           cursor: move;
+           float: left;
+           margin-right: 50px;
+           vertical-align:top;
+       }
+       .toolbar {
+           /*position: absolute;*/
+           bottom: 5px;
+           left: 5px;
+           right: 5px;
+           font-size: small;
+       }
+        .error {
+            color: red;
+        }
+        #crop,
+        #reset,
+        .canvasCon,
+        #cropCanvas,
+        .instructions,
+        .error {
+            display: none;
+        }
+        [class^='canvasScreen'] {
+            position: absolute;
+            background: #7F7F7F;
+            opacity: 0.7;
+        }
+        .canvasScreenTop {
+            top: 0;
+            left: 0;
+            height: 100px;
+            right: 0;
+        }
+        .canvasScreenBottom {
+            bottom: 0;
+            left: 0;
+            height: 100px;
+            right: 0;
+        }
+        .canvasScreenLeft {
+            top: 100px;
+            bottom: 100px;
+            left: 0;
+            width: 100px;
+        }
+        .canvasScreenRight {
+            top: 100px;
+            bottom: 100px;
+            right: 0;
+            width: 100px;
+        }
+        .clearfix:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+   <div id="@container">
+        <div id="ImageCropModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document" style="width:370px; height:400px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="btn-group mdbc-modal-action">
+                            <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+                        </div>
+                        <h4 class="modal-title" id="myModalLabel">@croptitle</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="image-cropper" style="image-rendering:pixelated;">
+                            <div class="instructions"></div>
+                            <div class="error">@croperror</div>
+                            <div class="clearfix" id="entirecanvas">
+                                <div class="canvasCon" id="canvasCon" style="image-rendering:pixelated;">
+                                    <canvas id="imageCanvas" width="300" height="300"></canvas>
+                                    <div class="canvasScreenTop"></div>
+                                    <div class="canvasScreenBottom"></div>
+                                    <div class="canvasScreenLeft"></div>
+                                    <div class="canvasScreenRight"></div>
+                                    <br />
+                                </div>
+                            </div>
+                            <canvas id="cropCanvas" width="100" height="100"></canvas>
+                        </div>
+                        <p id="zoomp">
+                            <label for="zoom">Zoom:</label><input type="text" id="zoom" readonly style="border:0; color:#f6931f; font-weight:bold;"><div id="helpzoom"></div>
+                        </p>
+                        <div id="slider-vertical"></div>
+                        <div class="toolbar" align="center">
+                            <button id="crop" type="button" class="btn btn-pink btn-sm waves-effect waves-light" style="width:100px;">
+                                <i class="fa fa-camera"></i>
+                                @croptext
+                            </button>
+                        </div>
+                        <div id="uploadphotocontainer" style="display:none">
+                            <div id="uploadphotoprogress">
+                                <fieldset class="top">
+                                    <div>
+                                        <fieldset id="file_name0" style="height:auto;width:100%">
+                                            <legend class="progress" style="width:100%;text-align:left;background:#FFBF00;"></legend>
+                                            <ol style="list-style:none">
+                                                <li>
+                                                    <div style="width:90%">
+                                                        <div id="progressbar0" class="progressbar"></div>
+                                                    </div>
+                                                </li>
+                                            </ol>
+                                        </fieldset>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div id="uploadphotoresults">
+                            </div>
+                            <div id="uploadphotoerrors">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="ImageFile" align="center">
+            <div class="cropResult">
+                <img src="~/Content/Images/default-userimg.jpg" style="display: block;margin: 4px;width:100px;height:100px;"/>
+            </div>
+            <input type="text" id="@hiddenfield" name="@hiddenfield" class="form-control validate">
+            <input type="file" id="imageUpLoader" name="imageUpLoader" style="display:none;" />
+            <button type="button" id="addfile" class="btn btn-pink btn-sm waves-effect waves-light" style="width:110px;">
+                <i class="fa fa-camera"></i>
+                @addfiletext
+            </button>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            // properties
+            var filename = ''; var fileid = ''; var message = ''; var appendval = false; var NUM_OF_CHUNKS = 0; var processedchunks = 0;var time = ''; var newPhotoUri = '';
+            var isCaptured = false;
+            var thumbSize = 100; var picturesize = 450;
+            var imageCoords = {
+                x: 0,
+                y: 0
+            };
+            var imageScale = 1;
+            var imageDimensions = {
+                width: 0,
+                height: 0,
+                minScale: 0.01,
+                maxScale: 1
+            }
+            var currentImage = null;
+            var originalSettings = {
+                coords: {
+                    x: 0,
+                    y: 0,
+                },
+                scale: 1,
+                dimensions: {
+                    width: 0,
+                    height: 0,
+                    minimum: thumbSize
+                }
+            };
+            var scaleCenter = {
+                x: 0,
+                y: 0
+            };
+            var grabCenter = false;
+            var isShiftKeyDown = false;
+            // dom dependencies
+            var canvas = document.getElementById('imageCanvas');
+            var ctx = canvas.getContext('2d');
+            var canCon = $('.canvasCon');
+            $("#slider-vertical").slider({
+                /*orientation: "vertical",
+                range: "min",*/
+                min: 50,
+                max: 200,
+                value: 100,
+                slide: function (event, ui) {
+                    $("#zoom").val(ui.value + "%");
+                    zoom(ui.value);
+                }
+            });
+            $('#entirecanvas').bind('mousewheel', function (event) {
+                event.preventDefault();
+                value = $("#slider-vertical").slider("value");
+                //Mousewheel Scrolled up
+                if (event.originalEvent.wheelDelta < 0) {
+                    value = value + 5;
+                    $("#slider-vertical").slider("value", value);
+                    $("#zoom").val(value + "%");
+                    zoom(value);
+                }
+                //Mousewheel Scrolled down
+                else if (event.originalEvent.wheelDelta > 0) {
+                    value = value - 5;
+                    $("#slider-vertical").slider("value", value);
+                    $("#zoom").val(value + "%");
+                    zoom(value);
+                }
+            });
+            $("#zoom").val($("#slider-vertical").slider("value") + "%");
+            $('#@hiddenfield').hide();
+            function clearCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            function refreshImage() {
+                clearCanvas();
+                boxed();
+                ctx.webkitImageSmoothingEnabled = false;
+                ctx.mozImageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(currentImage,
+                    imageCoords.x, imageCoords.y,
+                    imageDimensions.width * imageScale, imageDimensions.height * imageScale);
+            }
+            function resetImage() {
+                if (!currentImage) return;
+                imageDimensions.width = originalSettings.dimensions.width;
+                imageDimensions.height = originalSettings.dimensions.height;
+                imageScale = originalSettings.scale;
+                imageCoords.x = originalSettings.coords.x;
+                imageCoords.y = originalSettings.coords.y;
+                refreshImage();
+            }
+            function zoom(percentage) {
+                if (!currentImage) return;
+                var zoompercentage = percentage/100;
+                imageDimensions.width = originalSettings.dimensions.width;
+                imageDimensions.height = originalSettings.dimensions.height;
+                imageScale = zoompercentage * originalSettings.dimensions.scale;
+                refreshImage();
+            }
+            function handleImage(e) {
+                var hs = $('#slider-vertical').slider();
+                hs.slider('option', 'value', 100);
+                hs.slider('option', 'slide')
+                    .call(hs, null, { handle: $('.ui-slider-handle', hs), value: 100 });
+                $('#@container #ImageCropModal').modal('show');
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    currentImage = new Image();
+                    currentImage.onload = function () {
+                        imageCoords.x = 0;
+                        imageCoords.y = 0;
+                        originalSettings.dimensions.width = currentImage.width;
+                        imageDimensions.width = currentImage.width;
+                        originalSettings.dimensions.height = currentImage.height;
+                        imageDimensions.height = currentImage.height;
+                        var maxDim = Math.max(imageDimensions.height, imageDimensions.width);
+                        var minDim = originalSettings.dimensions.minimum = Math.min(imageDimensions.height, imageDimensions.width);
+                        var op = (minDim < thumbSize) ? "show" : "hide";
+                        $('.error')[op]();
+                        if (minDim < thumbSize) {
+                            canCon.hide();
+                            $('#reset,#crop,.instructions,#zoomp,#slider-vertical').hide();
+                            return;
+                        }
+                        else {
+                            canCon.show();
+                            $('#reset,#crop,.instructions,#zoomp,#slider-vertical').show();
+                        }
+                        imageScale = 1;
+                        originalSettings.dimensions.scale = 1;
+                        imageDimensions.maxScale = 1;
+                        if (maxDim > canvas.width) {
+                            imageScale = canvas.width / maxDim;
+                            originalSettings.dimensions.scale = imageScale;
+                        }
+                        imageDimensions.minScale = thumbSize / minDim;
+                        boxed();
+                        // center image
+                        var above = thumbSize - imageCoords.y;
+                        var below = imageCoords.y + (imageDimensions.height * imageScale) - (thumbSize * 2);
+                        var overlap = (above + below) / 2;
+
+                        imageCoords.y += (above - overlap);
+
+                        above = thumbSize - imageCoords.x;
+                        below = imageCoords.x + (imageDimensions.width * imageScale) - (thumbSize * 2);
+                        overlap = (above + below) / 2;
+
+                        imageCoords.x += (above - overlap);
+
+                        canCon.show();
+                        $('#reset,#crop,.instructions').show();
+                        refreshImage();
+                    }
+                    currentImage.src = event.target.result;
+                }
+                if (e.target.files.length) {
+                    reader.readAsDataURL(e.target.files[0]);
+                    filename = e.target.files[0].name;
+                }
+            }
+            function startScaling(newPoint, scale) {
+                scaleCenter.y = imageCoords.y + ((originalSettings.dimensions.height * scale) / 2);
+                scaleCenter.x = imageCoords.x + ((originalSettings.dimensions.width * scale) / 2);
+                grabCenter = false;
+            }
+            function scaleByCenter(coords, scale) {
+                coords.y = scaleCenter.y - ((originalSettings.dimensions.height * scale) / 2);
+                coords.x = scaleCenter.x - ((originalSettings.dimensions.width * scale) / 2);
+            }
+            function boxed() {
+                imageCoords.x = Math.min(thumbSize, imageCoords.x);
+                imageCoords.y = Math.min(thumbSize, imageCoords.y);
+
+                imageCoords.x = Math.max(imageCoords.x, (thumbSize * 2) - (imageDimensions.width * imageScale));
+                imageCoords.y = Math.max(imageCoords.y, (thumbSize * 2) - (imageDimensions.height * imageScale));
+            }
+            $('#@container #ImageFile button#addfile').click(function () {
+                $('#@container #ImageFile input[type=file]').click();
+            });
+            $('#@container #imageUpLoader').on('change', handleImage);
+            var UpdatePhotoResults = function (msg, append) {
+                if (append) {
+                    $('#@container #uploadphotocontainer #uploadphotoresults').append(msg);
+                }
+                else {
+                    $('#@container #uploadphotocontainer #uploadphotoresults').html(msg);
+                }
+            }
+            var UpdatePhotoErrors = function (msg,append) {
+                if (append) {
+                    $('#@container #uploadphotocontainer #uploadphotoerrors').append(msg);
+                }
+                else {
+                    $('#@container #uploadphotocontainer #uploadphotoerrors').html(msg);
+                }
+            }
+            var StartingUploadPhoto = function () {
+                $('#@container #uploadphotocontainer').fadeIn(100);
+            }
+            var FinishingUploadPhoto = function () {
+                $('#@container #uploadphotocontainer').fadeOut(8000);
+            }
+            var UpdateProgressBar = function (currentchunk, totalchunks) {
+                var percentage = Math.round((currentchunk / totalchunks) * 100);
+                $('#@container div#uploadphotocontainer div#uploadphotoprogress fieldset.top div fieldset#file_name0 legend.progress').css({ 'width': percentage + '%' });
+            }
+            var doneprocess = function () {
+                FinishingUploadPhoto();
+                $('#@container .cropResult img').attr('src', newPhotoUri);
+                $('#@container #ImageFile #@hiddenfield').val(fileid);
+                $('#@container .cropResult').show();
+                $('#@container #ImageCropModal').modal('hide');
+                $("#@container #imageUpLoader").val('');
+            }
+            var initprocess = function () {
+                StartingUploadPhoto();
+            }
+            var failedprocess = function () {
+                UpdatePhotoErrors(message,false);
+            }
+            var inprogress = function () {
+                UpdateProgressBar(processedchunks, NUM_OF_CHUNKS);
+                UpdatePhotoResults('Leia o número do bloco ' + processedchunks + ' de ' + NUM_OF_CHUNKS,false)
+            }
+            var uploadphoto = function (chunkindex, lastchunkindex, chunk)
+            {
+                return new Promise(function (resolve) {
+                    var uploadurl = '@Apiurl/api/PostPhoto';
+                    var paramdata = new FormData();
+                    paramdata.append('fileid', fileid);
+                    paramdata.append('filename', filename);
+                    paramdata.append('chunkindex', chunkindex);
+                    paramdata.append('lastchunkindex', lastchunkindex);
+                    paramdata.append('chunk', chunk);
+                    $.ajax({
+                        url: uploadurl,
+                        data: paramdata,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (returnval) {
+                            //alert('sucess');
+                            resolve(returnval);
+                        },
+                        error: function (returnval) {
+                            //alert('error');
+                            reject(returnval);
+                        }
+                    });
+                });
+            }
+            $('#@container #crop').click(function (e) {
+                e.preventDefault();
+
+                if (!currentImage) return;
+
+                var resizedCanvas = document.createElement("canvas");
+                resizedCanvas.style["image-rendering"] = "pixelated";
+                var resizedContext = resizedCanvas.getContext("2d");
+                resizedCanvas.height = picturesize;
+                resizedCanvas.width = picturesize;
+                resizedContext.webkitImageSmoothingEnabled = false;
+                resizedContext.mozImageSmoothingEnabled = false;
+                resizedContext.imageSmoothingEnabled = false;
+
+                var above = thumbSize - imageCoords.y;
+                var below = imageCoords.y + (imageDimensions.height * imageScale) - (thumbSize * 2);
+                var heightsize = thumbSize / imageScale;//(above - below);
+
+                var imageCoordsY = above/imageScale;
+
+                above = thumbSize - imageCoords.x;
+                below = imageCoords.x + (imageDimensions.width * imageScale) - (thumbSize * 2);
+                var widthsize = thumbSize / imageScale;//(above - below);
+
+                var imageCoordsX = above/imageScale;
+
+                resizedContext.drawImage(currentImage,
+                    imageCoordsX, imageCoordsY,
+                    widthsize, heightsize,
+                    0, 0,
+                    picturesize, picturesize);
+
+                newPhotoUri = resizedCanvas.toDataURL('image/jpeg', 1);
+                initprocess();
+                var BYTES_PER_CHUNK = 2000; processedchunks = 0;
+                NUM_OF_CHUNKS = Math.max(Math.ceil(newPhotoUri.length / BYTES_PER_CHUNK), 1);
+                fileid = ''; time = new Date().getTime();processedchunks = 0;
+                var uploadfirstpromise = uploadphoto(0, NUM_OF_CHUNKS, newPhotoUri.slice(0, BYTES_PER_CHUNK));
+                uploadfirstpromise.then(function (data) {
+                    processedchunks++;
+                    fileid = data;
+                    if (processedchunks >= NUM_OF_CHUNKS) {
+                        appendval = true;
+                        message = '<strong>Carregamento acabado!</strong><br/>' + '<strong>Tempo total:</strong>' + (new Date().getTime() - time) + 'ms<br/>' + '<strong>File hash:</strong>' + fileid + '<br/>';
+                        doneprocess();
+                        return;
+                    }
+                    else {
+                        inprogress();
+                        let promises = [];
+                        for (var chunkindex = 1; chunkindex < NUM_OF_CHUNKS; chunkindex++) {
+                            (function (chunkindex, BYTES_PER_CHUNK) {
+                                var start = (chunkindex * BYTES_PER_CHUNK);
+                                var end = start + BYTES_PER_CHUNK;
+                                var uploadlooppromise = uploadphoto(chunkindex, NUM_OF_CHUNKS, newPhotoUri.slice(start, end));
+                                promises.push(uploadlooppromise);
+                                uploadlooppromise.then(function (data) {
+                                    processedchunks++; inprogress();
+                                });
+                            })(chunkindex, BYTES_PER_CHUNK);
+                        }
+                        Promise.all(promises)
+                            .then((results) => {
+                                appendval = true;
+                                message = '<strong>Carregamento acabado!</strong><br/>' + '<strong>Tempo total:</strong>' + (new Date().getTime() - time) + 'ms<br/>' + '<strong>File hash:</strong>' + fileid + '<br/>';
+                                doneprocess();
+                            });
+                    }
+                });
+            });
+            canCon.on('selectstart', false).on("mousedown.cropper", function (e) {
+                var originalPoint = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                var originalCoords = {
+                    x: imageCoords.x,
+                    y: imageCoords.y,
+                    scale: imageScale
+                };
+                if (isShiftKeyDown) {
+                    startScaling(originalPoint, imageScale);
+                }
+                grabCenter = false;
+                var originalScale = imageScale;
+                isCaptured = true;
+                $(document).on('mousemove.cropper', function (e) {
+                    var newPoint = {
+                        x: e.clientX,
+                        y: e.clientY
+                    };
+                    if (grabCenter) {
+                        startScaling(newPoint, imageScale);
+                    }
+                    var delta = {
+                        x: newPoint.x - originalPoint.x,
+                        y: newPoint.y - originalPoint.y
+                    };
+
+                    if (isShiftKeyDown) {
+                        var moveScale = Math.max(-0.08, -0.000001 * Math.pow(originalCoords.scale * originalSettings.dimensions.minimum, 1.7));
+                        imageScale = Math.max(imageDimensions.minScale, Math.min(imageDimensions.maxScale, originalScale + (delta.y * moveScale)));
+                        console.log('cur=' + imageScale);
+                        console.log('min,max=' + imageDimensions.minScale + ',' + imageDimensions.maxScale);
+                        scaleByCenter(imageCoords, imageScale);
+                    } else {
+                        imageCoords.x = originalCoords.x + delta.x;
+                        imageCoords.y = originalCoords.y + delta.y;
+                    }
+                    refreshImage();
+                }).on('mouseup.cropper', function (e) {
+                    isCaptured = false;
+                    $(document).off('mousemove.cropper').off('mouseup.cropper');
+                    refreshImage();
+                });
+            });
+        });
+    </script>
+}
+
+@helper Naoexistemdados()
+{
+    <div class="row" style="position: absolute;top: 40%;width:100%;">
+        <div class="col-4 offset-4 text-center">
+            <div class="offset-1 col-10">
+                <img class="col-12" src="~/Content/Images/logo.png" />
+            </div>
+            <br />
+            <h3>Não existem dados</h3>
+        </div>
+    </div>
+}
+
+@helper TabEmptyStateAnexo()
+{
+    <div class="docs-gallery">
+        <h3 class="grey-text text-darken-1" style="margin-bottom: 0.5rem">Imagens</h3>
+        <div class="row" style="position: absolute;top: 40%;width:100%;">
+            <div class="offset-1 col-10 text-center">
+                <svg width="51px" height="102px" viewBox="0 0 51 102">
+                    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="EmptyStatesEAlteracoes" transform="translate(-1790.000000, -1102.000000)" fill="#41ABE9">
+                            <g id="ic_attach_file-copy" transform="translate(1790.000000, 1102.000000)">
+                                <g id="Icon-24px">
+                                    <path d="M44.0824468,23.3297872 L44.0824468,76.3643617 C44.0824468,86.5562234 35.8275,94.8111702 25.6356383,94.8111702 C15.4437766,94.8111702 7.18882979,86.5562234 7.18882979,76.3643617 L7.18882979,18.7180851 C7.18882979,12.3539362 12.3539362,7.18882979 18.7180851,7.18882979 C25.082234,7.18882979 30.2473404,12.3539362 30.2473404,18.7180851 L30.2473404,67.1409574 C30.2473404,69.6773936 28.1720745,71.7526596 25.6356383,71.7526596 C23.0992021,71.7526596 21.0239362,69.6773936 21.0239362,67.1409574 L21.0239362,23.3297872 L14.106383,23.3297872 L14.106383,67.1409574 C14.106383,73.5051064 19.2714894,78.6702128 25.6356383,78.6702128 C31.9997872,78.6702128 37.1648936,73.5051064 37.1648936,67.1409574 L37.1648936,18.7180851 C37.1648936,8.5262234 28.9099468,0.271276596 18.7180851,0.271276596 C8.5262234,0.271276596 0.271276596,8.5262234 0.271276596,18.7180851 L0.271276596,76.3643617 C0.271276596,90.3839362 11.6160638,101.728723 25.6356383,101.728723 C39.6552128,101.728723 51,90.3839362 51,76.3643617 L51,23.3297872 L44.0824468,23.3297872 L44.0824468,23.3297872 Z" id="Shape"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <br />
+                O paciente não anexou documentos<br />
+                para esta consulta
+            </div>
+        </div>
+    </div>
+}
+
+@helper EmptyChatMessages()
+{
+    <div class="docs-gallery">
+        <div class="row" style="position: absolute;top: 40%;left:15%;right:15%">
+            <div class="offset-1 col-10 text-center">
+                <svg width="70px" height="70px" viewBox="0 0 70 70">
+                    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="EmptyStatesEAlteracoes" transform="translate(-1779.000000, -371.000000)" fill="#41ABE9">
+                            <path d="M1845.5035,385.0035 L1838.5,385.0035 L1838.5,416.5035 L1792.9965,416.5035 L1792.9965,423.5035 C1792.9965,425.4355 1794.5715,427.0035 1796.5,427.0035 L1834.9965,427.0035 L1849,441.0035 L1849,388.5035 C1849,386.568 1847.432,385.0035 1845.5035,385.0035 M1828.0035,371 L1782.5,371 C1780.568,371 1779,372.568 1779,374.5035 L1779,423.5035 L1792.9965,409.5035 L1828.0035,409.5035 C1829.932,409.5035 1831.5,407.9355 1831.5,406 L1831.5,374.5035 C1831.5,372.568 1829.932,371 1828.0035,371" id="Fill-6-Copy"></path>
+                        </g>
+                    </g>
+                </svg>
+                <br />
+                Ainda não trocou mensagens com <br />
+                este paciente
+            </div>
+        </div>
+    </div>
+}
+
+@helper TabEmptyStateReceitas()
+{
+    <div class="docs-gallery">
+        <h3 class="grey-text text-darken-1" style="margin-bottom: 0.5rem">Receitas médicas</h3>
+        <p style="padding-left: 1.25rem;"><strong>Ainda não emitiu receitas médicas</strong></p>
+        <div class="row" style="position: absolute;top: 40%;width:100%;">
+            <div class="offset-1 col-10 text-center">
+                <svg width="68px" height="86px" viewBox="0 0 68 86">
+                    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="EmptyStatesEAlteracoes" transform="translate(-1781.000000, -1939.000000)" fill="#41ABE9">
+                            <g id="ic_description-copy" transform="translate(1781.000000, 1939.000000)">
+                                <g id="Icon-24px">
+                                    <path d="M42.5,0.5 L8.5,0.5 C3.825,0.5 0.0425,4.325 0.0425,9 L0,77 C0,81.675 3.7825,85.5 8.4575,85.5 L59.5,85.5 C64.175,85.5 68,81.675 68,77 L68,26 L42.5,0.5 L42.5,0.5 Z M51,68.5 L17,68.5 L17,60 L51,60 L51,68.5 L51,68.5 Z M51,51.5 L17,51.5 L17,43 L51,43 L51,51.5 L51,51.5 Z M38.25,30.25 L38.25,6.875 L61.625,30.25 L38.25,30.25 L38.25,30.25 Z" id="Shape"></path>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <br />
+                Ainda não emitiu receituário
+            </div>
+        </div>
+    </div>
+}
+
+@helper TabEmptyStateMCDT()
+{
+    <div class="docs-gallery">
+        <div class="row" style="position: absolute;top: 40%;width:100%;">
+            <div class="offset-1 col-10 text-center">
+                <svg width="99px" height="108px" viewBox="0 0 99 108">
+                    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="EmptyStatesEAlteracoes" transform="translate(-1766.000000, -2761.000000)" fill="#41ABE9">
+                            <g id="Lab-results-Copy" transform="translate(1766.000000, 2761.000000)">
+                                <path d="M34.4444444,4.3554411 L32.6542155,0.105278863 L38.874783,0.105278863 L38.8653243,1.22222222 L38.8888889,1.22222222 L38.8888889,32.3333334 L38.9111159,32.3333334 L38.9111159,33.8691135 L38.8892955,33.8691135 L37.5778002,35.7542127 L8.04223691,81.8622803 C0.373842479,93.8334368 5.26420357,102.785793 19.463738,102.785793 L79.4673585,102.785793 C93.656334,102.785793 98.5142419,93.8773606 90.8170881,81.9685567 L61.5837942,36.7777778 L59.9777815,34.5517603 L59.9777815,32.3333333 L60,32.3333333 L60,1.22222222 L60.0094587,1.22222222 L60,0.105278863 L66.2205675,0.105278863 L64.4444444,4.32195244 L64.4444444,32.9780025 L64.6844129,33.3492744 L94.5497319,79.5559943 C104.159317,94.4236547 97.175687,107.230238 79.4673585,107.230238 L19.463738,107.230238 C1.74972017,107.230238 -5.26276621,94.3930919 4.29978167,79.4649661 L33.835345,33.3568985 L34.4444444,32.4060313 L34.4444444,4.3554411 Z" id="Path"></path>
+                                <path d="M67.6560915,55.4617093 L83.9044593,80.6186043 C90.3155833,90.5377019 93.1568257,97.9577272 74.4510266,97.9577262 L24.472727,97.9577262 C8.18479947,97.9577272 8.57234456,90.5011168 14.9595144,80.5300844 L31.4134836,55.4617093 L67.6560915,55.4617093 Z" id="Path"></path>
+                                <polygon id="Shape" fill-rule="nonzero" points="30 47.8888889 45.5555556 47.8888889 47.7777778 47.8888889 47.7777778 43.4444444 45.5555556 43.4444444 30 43.4444444 27.7777778 43.4444444 27.7777778 47.8888889"></polygon>
+                                <polygon id="Shape" fill-rule="nonzero" points="39.9308247 35.6666667 48.8888889 35.6666667 51.1111111 35.6666667 51.1111111 31.2222222 48.8888889 31.2222222 39.9308247 31.2222222 37.7086025 31.2222222 37.7086025 35.6666667"></polygon>
+                                <polygon id="Shape" fill-rule="nonzero" points="37.7086025 24.5555556 44.5354711 24.5555556 46.7576933 24.5555556 46.7576933 20.1111111 44.5354711 20.1111111 37.7086025 20.1111111 35.4863803 20.1111111 35.4863803 24.5555556"></polygon>
+                                <polygon id="Shape" fill-rule="nonzero" points="37.7777778 12.3333333 48.4444444 12.3333333 50.6666667 12.3333333 50.6666667 7.88888889 48.4444444 7.88888889 37.7777778 7.88888889 35.5555556 7.88888889 35.5555556 12.3333333"></polygon>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <br />
+                Ainda não emitiu Meios<br />
+                complementares de diagnóstico e<br />
+                terapêutica
+            </div>
+        </div>
+    </div>
+}
+
+@helper TabEmptyStateHistorico()
+{
+    <div class="docs-gallery">
+        <h3 class="grey-text text-darken-1" style="margin-bottom: 0.5rem">Histórico de consultas do paciente</h3>
+        <div class="row" style="position: absolute;top: 40%;width:100%;">
+            <div class="offset-1 col-10 text-center">
+                <svg width="80px" height="91px" viewBox="0 0 80 91">
+                    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="EmptyStatesEAlteracoes" transform="translate(-1783.000000, -3543.000000)" fill="#41ABE9">
+                            <g id="Icon-24px-Copy" transform="translate(1783.000000, 3543.000000)">
+                                <polygon id="Shape" points="50.1333333 10.6666667 48 0 0 0 0 90.6666667 10.6666667 90.6666667 10.6666667 53.3333333 40.5333333 53.3333333 42.6666667 64 80 64 80 10.6666667"></polygon>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <br />
+                Esta é a primeira consullta deste<br />
+                paciente
+            </div>
+        </div>
+    </div>
+}
+
+@helper CicularLoader(string ContainerId)
+{
+        <div id="circularContainer" style="width:100%;position:relative;opacity: 0.7;" align="center">
+            <br />
+            <div id="circularLoader"></div>
+        </div>
+        <script>
+        function CircularLoader() {
+            $('#@ContainerId #circularContainer #circularLoader').html('<div id="smallerloader"><div class="text-center" style="align-self: center;"><div class="preloader-wrapper big active"><div class="spinner-layer spinner-blue"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-red"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-yellow"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div><div class="spinner-layer spinner-green"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div></div></div>');
+        }
+        function UnLoadCircularLoader() {
+            $('#@ContainerId #circularContainer #circularLoader').html('');
+        }
+        </script>
+}
+
+        @helper SubmitWithCircularLoader(string ContainerId, string formid)
+        {
+        @_WebMedicoFormsHelpers.CicularLoader(ContainerId)
+        <script>
+        $('#@formid').on("submit", function (e) {
+            if ($('#@formid').valid()) {
+                    CircularLoader();
+                    return true;
+                } else {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        </script>
+}

@@ -1,0 +1,126 @@
+﻿@using IFarmacias.Models.Response;
+@model IFarmacias.Models.Response.McdtResponse
+@{
+    bool isEdit = Model.IdMcdt > 0;
+    bool isReadonly = ViewBag.Readonly != null && ViewBag.Readonly == true;
+    HtmlString modalTitle;
+    if (isReadonly) { modalTitle = new HtmlString("Ver"); }
+    else if (isEdit) { modalTitle = new HtmlString("Editar"); }
+    else { modalTitle = new HtmlString("Inserir"); }
+}
+@Scripts.Render("~/bundles/md5")  
+<div class="modal-dialog modal-lg" role="document">
+    <!--Content-->
+    <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+
+            <div class="btn-group mdbc-modal-action">
+                @if (isReadonly)
+                {
+                    @Ajax.ActionLink("edit", "_ModalEditMcdt",
+         new
+         {
+             idConsulta = ViewBag.idConsulta,
+             idMcdt = Model.IdMcdt
+         },
+         new AjaxOptions()
+         {
+             UpdateTargetId = "modalMCDT",
+             InsertionMode = InsertionMode.Replace,
+             OnSuccess = "onModalLoaded",
+             OnBegin = "onModalLoading"
+         },
+         new
+         {
+             @class = "material-icons",
+             data_target = "#modalMCDT"
+         })
+                    <!--Trigger-->
+                    <a class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">more_vert</a>
+
+                        <!--Menu-->
+                    <div class="dropdown-menu dropdown-menu-right">
+                        @Ajax.ActionLink("Eliminar", "DeleteMcdt",
+         new
+         {
+             idConsulta = ViewBag.idConsulta,
+             idMcdt = Model.IdMcdt
+         },
+         new AjaxOptions()
+         {
+             UpdateTargetId = "panelMcdt",
+             InsertionMode = InsertionMode.Replace,
+             OnFailure = "onModalError",
+             OnComplete = "onModalSubmited",
+             OnBegin = "confirmAction"
+         },
+         new
+         {
+             data_toggle = "popover",
+             data_placement = "bottom",
+             data_content = "Tem certeza que deseja remover o mcdt?",
+             title = "Confirmar",
+             @class = "dropdown-item"
+         })
+                    </div>
+                }
+                <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+            </div>
+
+            <h4 class="modal-title" id="myModalLabel">@modalTitle MCDT</h4>
+        </div>
+        <!--Body-->
+        <div class="modal-body">
+              @using (Ajax.BeginForm("AddEditMcdt", "Home",
+              new { idConsulta = ViewBag.idConsulta },
+              new AjaxOptions { UpdateTargetId = "panelMcdt", InsertionMode = InsertionMode.Replace, OnFailure = "onModalError", OnSuccess = "onModalSubmited", OnBegin = "disableAll", OnComplete = "onModalLoaded" },
+              new { id = "_mcdt" }))
+              {
+                <h5><strong>Dados gerais MCDT</strong></h5>
+                <br />
+                @Html.HiddenFor(x => x.IdMcdt, new { name = "IdMcdt", id = "IdMcdt" })
+                @Html.Hidden("McdtImageId", Model.McdtImageId, new { name = "McdtImageId", id = "McdtImageId" })
+                @Html.Hidden("McdtImageName", Model.McdtImageName, new { name = "McdtImageName", id = "McdtImageName" });
+                <div class="col-11 col-centered">
+                    <div class="md-form" style="float:left;width:49%;padding-right:2%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.RequirementNumber, new { @class = "form-control" }) : Html.TextBoxFor(x => x.RequirementNumber, new { @class = "form-control", @readonly = true, id = "RequirementNumber" }))
+                        @Html.LabelFor(x => x.RequirementNumber)
+                    </div>
+
+                    <div class="md-form" style="float:left;width:49%;">
+                        @(!isReadonly ? Html.TextBoxFor(x => x.Pin, new { @class = "form-control" }) : Html.TextBoxFor(x => x.Pin, new { @class = "form-control", @readonly = true, id = "Pin" }))
+                        @Html.LabelFor(x => x.Pin)
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+              }
+              <h5><strong>Exames</strong></h5>
+              <br />
+                <div id="modalMcdtTable">
+                    @Html.Action("_ModalMcdtTable", new { isReadonly })
+                </div>
+                <span id="ModalMcdtTableCountValidator" style="color:red;"></span>
+            <hr />
+            <div>
+                @if (!isReadonly) {
+                    @_WebMedicoHelpers.FileUploadControl("uploadfileform", Model.McdtImageName)
+                }
+                else if (Model.McdtImageName != null)
+                {
+                    @_WebMedicoHelpers.FileDownloadControl(Url.Action("DownloadMcdt", "Home", new { idConsulta = ViewBag.idConsulta, idMcdt = Model.IdMcdt }), Model.McdtImageName)
+                }
+                @_WebMedicoHelpers.FileUploadScripts(ViewBag.ApiUrl, "#uploadfileform", "#McdtImageId", "#McdtImageName", "dragandrophandler")
+                </div>
+            </div>
+            @if (!isReadonly)
+            {
+                <div class="modal-footer">
+                    <button type="button" class="btn-flat red-text waves-effect" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btnSubmitMcdt" class="btn-flat blue-text waves-effect" form="_mcdt">Submeter</button>
+                </div>
+            }
+        </div>
+</div>   
+@_WebMedicoHelpers.SubmitWithFileConverter("#modalMCDT div.modal-body", "button#btnSubmitMcdt", "#ProgressBarSection", "form#_mcdt", "form#_mcdttable", "McdtExamsCount", "div#modalMCDT div.modal-dialog div.modal-content div.modal-body span#ModalMcdtTableCountValidator", "Deve haver pelo menos um exame")
+

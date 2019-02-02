@@ -1,0 +1,208 @@
+﻿<div class="modal fade modal-ext mdbc-modal" id="modalAdicionarMedicacao" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <!--Content-->
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Adicionar medicacao</h4>
+            </div>
+            <!--Body-->
+            <div class="modal-body">
+                <ul class="nav nav-tabs tabs-4 blue" style="visibility:hidden;height:0;" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#panel1" role="tab">Passo 1</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#panel2" role="tab">Passo 2</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#panel3" role="tab">Passo 3</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content no-padding-bottom padding-top-dense">
+                    <div class="tab-pane fade in show active" id="panel1" role="tabpanel">
+                        <div class="col-12">
+                            <div class="md-form">
+                                <input type="text" id="nomeMed" class="form-control">
+                                <label for="nomeMed">Nome do medicamento</label>
+                            </div>
+                            <br />
+                            <div class="md-form">
+                                <input type="text" id="codBarra" class="form-control">
+                                <label for="codBarra">Codigo de barras</label>
+                            </div>
+                            <br />
+                            <div class="md-form">
+                                <input type="text" id="qtyEmbalagem" class="form-control">
+                                <label for="qtyEmbalagem">Quantidade da embalagem</label>
+                            </div>
+                            <br />
+                            <div class="md-form">
+                                <input type="text" id="qtyRestante" class="form-control">
+                                <label for="qtyRestante">Quantidade restante</label>
+                            </div>
+                            <br />
+                        </div>
+                        <hr />
+                        <div class="text-right row">
+                            <div class="col">
+                                <div class="text-left">
+                                    <div class="md-form no-margin-bottom">
+                                        <a data-dismiss="modal" class="btn btn-danger waves-effect waves-light">Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-right">
+                                    <div class="md-form">
+                                        <a href="#" onclick="next();"><i class="material-icons material-icons-48">navigate_next</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="panel2" role="tabpanel">
+                        <div class="col-12">
+                            <label for="basic-url">Unidade por cada toma</label>
+                            <div class="row col-5">
+                                <div class="md-form input-group">
+                                    <a class="input-group-addon transparent less"><i class="fa fa-minus-circle"></i></a>
+                                    <input type="text" class="form-control" id="unidToma">
+                                    <a class="input-group-addon transparent more"><i class="fa fa-plus-circle"></i></a>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="md-form">
+                                <select class="mdb-select" id="tipoTerap">
+                                    <option value="" disabled="" selected=""></option>
+                                    <option value="1">Option 1</option>
+                                    <option value="2">Option 2</option>
+                                    <option value="3">Option 3</option>
+                                </select>
+                                <label for="tipoTerap">Tipo de terapeutica</label>
+                            </div>
+                            <br />
+                            <div class="md-form">
+                                <select class="mdb-select" id="repeticao">
+                                    <option value="" disabled="" selected=""></option>
+                                    <option value="1">Option 1</option>
+                                    <option value="2">Option 2</option>
+                                    <option value="3">Option 3</option>
+                                </select>
+                                <label for="repeticao">Repeticao</label>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="md-form input-group">
+                                        <input type="text" class="form-control" aria-describedby="repAddon">
+                                        <span class="input-group-addon" id="repAddon">Dia(s)</span>
+                                        <label>Repete a cada</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="md-form input-group">
+                                        <input type="text" id="dataDoInicio" class="form-control datepicker" readonly="" aria-haspopup="true" aria-expanded="true" aria-readonly="false" aria-owns="date-picker-example_root">
+                                        <label>Data do inicio</label>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="col-6">
+                                    <div class="md-form input-group">
+                                        <input type="text" id="horas" class="form-control timepicker">
+                                        <label>Horas</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-left">
+                                    <div class="md-form">
+                                        <a href="#" onclick="previous();"><i class="material-icons material-icons-48">navigate_before</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-right">
+                                    <div class="md-form">
+                                        <a href="#" onclick="next();"><i class="material-icons material-icons-48">navigate_next</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="panel3" role="tabpanel">
+                        <div class="col-12">
+                            <div class="md-form row">
+                                <div class="col-10">
+                                    <p class="mdbc-margintop-10">Deseja receber lembretes para esta medicacao?</p>
+                                </div>
+                                <div class="col-2">
+                                    <div class="switch">
+                                        <label>
+                                            <input type="checkbox">
+                                            <span class="lever"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="md-form row">
+                                <div class="col-10">
+                                    <p class="mdbc-margintop-10">Desejo receber um aviso <input type="text" id="diaAgotarMed" class="form-control mdbc-input-inline text-center"> dias antes de esgotar a medicacao</p>
+                                </div>
+                                <div class="col-2">
+                                    <fieldset class="form-group">
+                                        <input name="group1" type="checkbox" id="radioAvisoAgoto" checked="checked">
+                                        <label for="radioAvisoAgoto">&nbsp;</label>
+                                    </fieldset>
+                                </div>
+                                
+                            </div>
+                            <br />
+                            <div class="md-form row">
+                                <div class="col-10">           
+                                    <p class="mdbc-margintop-10">Desejo receber um aviso quando a medicacao está a <input type="text" id="diaDoFin" class="form-control mdbc-input-inline text-center"> unidades do fim</p>
+                                </div>
+                                <div class="col-2">
+                                    <fieldset class="form-group">
+                                        <input name="group2" type="checkbox" id="radioAvisoDoFin">
+                                        <label for="radioAvisoDoFin">&nbsp;</label>
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-left">
+                                    <div class="md-form">
+                                        <a href="#" onclick="previous();"><i class="material-icons material-icons-48">navigate_before</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="text-right">
+                                    <div class="md-form no-margin-bottom">
+                                        <button type="submit" class="btn btn-primary">Registar</button>
+                                        @*<button id="RegisterBtn" type="submit" class="btn btn-primary">Registar</button>*@
+                                        @*   <button type="submit" class="btn btn-primary" data-target="#modalRegister" onclick="Register(NAME, LASTNAME, EMAIL, PASSWORD, GENDER, ID_COUNTRY, SPECIALTY, ORDER_NUMBER, INIT_DATE_CAREER, BIRTH_DATE, LANGUAGES, TAXPAYER, LOCALITY, MOBILE_NUMBER);">Registar</button>*@
+                                        @* <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#modalRegister"> Confirmar </button>*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/.Content-->
+    </div>
+</div>

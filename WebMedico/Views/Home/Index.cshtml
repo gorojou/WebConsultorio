@@ -1,0 +1,217 @@
+﻿@model WebMedico.Models.ConsultaDashBoardViewModel
+@{
+    ViewBag.Title = "Home";
+}
+@using System.Configuration
+<style>
+    .currentactive-pop-message {
+        background-color: #04abe9;
+    }
+
+    .common-pop-messages {
+        background-color: lightgray;
+    }
+
+    .pop-messages-container {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        padding: 0 15px;
+        z-index: 10;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .pop-messages {
+        background: white;
+        width: 20vw;
+        height: 60vh;
+        margin: 0 15px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pop-messages-container .mdbc-chat-container {
+        height: 90%;
+    }
+
+    .pop-messages.inactive {
+        height: 100%;
+        width: 15vw;
+    }
+
+        .pop-messages.inactive .mdbc-chat-title {
+            background-color: white !important;
+            color: black !important;
+            font-weight: bold;
+        }
+
+        .pop-messages.inactive .mdbc-chat-container {
+            display: none;
+        }
+
+    .pop-messages .mdbc-chat-messages {
+        max-height: calc(100% - 50px);
+    }
+
+    .pop-messages .loader-container {
+        padding: 10vh 1.5rem;
+    }
+
+    .pop-messages .close {
+        position: absolute;
+        right: 0;
+        padding: 0 .5rem;
+        height: 100%;
+        top: 0;
+    }
+</style>
+
+<!-- Modal Assume the Consultation -->
+<div class="modal fade" id="modalForgotPassword" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <h3>
+                    <strong>Atender </strong>
+                </h3>
+            </div>
+
+            <!--Body-->
+            <div class="modal-body">
+                <p class="black-54">Tem a certeza que pretende atender este paciente?</p>
+            </div>
+
+            <!--Footer-->
+            <div class="modal-footer">
+                <a type="button" href="/" class="btn-flat waves-effect" style="color: #FE2E9A" onclick="assumir();" data-dismiss="modal">ATENDER PACIENTE</a>
+                <a type="button" href="/" class="btn-flat waves-effect" style="color: #FE2E9A" data-dismiss="modal">CANCELAR</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal Assume the Consultation -->
+
+@_WebMedicoHelpers.ModalLoading()
+@_WebMedicoHelpers.CssForMoreToggle()
+@_WebMedicoHelpers.JQueryForMoreToggle(15)
+
+<div id="result" class="row">
+    @Html.Partial("_ConsultaDashBoard", Model)
+</div>
+
+@section scripts{
+    <script src="~/Scripts/jquery.signalR-2.2.2.js"></script>
+    <script src="@ConfigurationManager.AppSettings["ApiUrl"]/signalr/hubs"></script>
+    <script type="text/javascript">
+            /*signalr code from dashboard update*/
+                //Set the hubs URL for the connection
+                $.connection.hub.url = "@ConfigurationManager.AppSettings["ApiUrl"]/signalr";
+                $.connection.hub.disconnected(function () {
+                    setTimeout(function () {
+                        $.connection.hub.start().done(function () {
+                        });
+                    }, 500);
+                })
+                // Declare a proxy to reference the hub.
+                var dashBoardHub = $.connection.dashBoardHub;
+                $.connection.hub.logging = true;
+                $.connection.hub.start().done(function () {
+                });
+
+                dashBoardHub.client.refreshTable = function()
+                {
+                    dashboard();
+                    }
+            /*end signalr code from dashboard update*/
+
+        $('#modalForgotPassword').on('show.bs.modal',
+            function (event) {
+                var button = $(event.relatedTarget);
+                var idConsulta = button.data('idconsulta');
+
+                var paciente = model.OpenList.filter(function(element) { return element.IdConsulta == idConsulta });
+
+                var modal = $(this);
+                modal.data('idconsulta', idConsulta);
+                modal.find('.modal-header h3').text('Assmir consulta de ' + paciente[0].Name);
+            });
+
+    function assumir() {
+        var modal = $('#modalForgotPassword');
+        var idConsulta = modal.data('idconsulta');
+        console.log(idConsulta);
+        $("#pleaseWaitDialog").modal("show");
+        var parameters = { idConsulta: idConsulta };
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: '@Url.Action("AssumeConsultation")',
+            data: parameters,
+            success: function (data) {
+                if (data) {
+                    location.href = '@Url.Action("ConsultDetail", "Home")?idConsulta=' + idConsulta;
+                }
+                else {
+                    alert("Este paciente já foi atendido por outro medico. Actualize a página.");
+                    //location.href = location.href;
+                    dashboard();
+                    $("#pleaseWaitDialog").modal('hide');
+                }
+            },
+            error: function (xhr) {
+                console.log("Error");
+            }
+        });
+    }
+    </script>
+    <script>
+$(document).ready(function ()
+{
+    
+    $.sessionTimeout({
+            title: $("#titleSession").val(),
+            message: $("#messageSession").val(),
+            keepAliveButton: $("#keepAliveButton").val(),
+            keepAliveUrl: '',
+            keepAlive: $("#keepAlive").val(),
+            //ignoreUserActivity: $("#ignoreUserActivity").val(),
+            logoutButton: $("#logoutButton").val(),
+            logoutUrl: '@Url.Action(Model.SessionConfig.ActionName, Model.SessionConfig.ControllerName)',
+            redirUrl: '@Url.Action(Model.SessionConfig.ActionName, Model.SessionConfig.ControllerName)',
+            warnAfter: $("#millisecWarning").val(),
+            redirAfter: $("#millisecRedir").val(),
+            countdownBar: $("#countdownBar").val(),
+            countdownMessage: $("#countdownMessage").val() + '{timer}',
+            countdownSmart: $("#countdownSmart").val()
+        });
+    noBack();
+
+    isOnline('@ConfigurationManager.AppSettings["ApiUrl"]');
+    });
+    function openconsult(id)
+    {
+        $("#pleaseWaitDialog").modal('show');
+        var url = '@Url.Action("ConsultDetail", "Home", new { idConsulta = "replace" })';
+        url = url.replace("replace", id);
+        location.href = url;
+        }
+        function dashboard() {
+            $.ajax({
+                             cache: false,
+                             type: "GET",
+                             url: '@Url.Action("GetConsultationDashBoard")',
+                             data: {},
+                             success: function (data) {
+                                 $("#result").empty();
+                                 $("#result").html(data);
+
+                             },
+                             error: function (xhr) {
+
+                             }
+            });
+        }
+    </script>
+}

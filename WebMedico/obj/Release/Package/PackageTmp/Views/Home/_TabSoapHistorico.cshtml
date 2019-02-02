@@ -1,0 +1,27 @@
+﻿@model IFarmacias.Models.SoapResponse
+
+<div class="col-12">
+    
+        @Html.HiddenFor(x => x.Date)
+        @Html.HiddenFor(x => x.IdSoap)
+    <table class="table no-header">
+        <tbody>
+            <tr>
+                <td style="width:80px;">Subjectivo</td>
+                <td>@Model.Subjective</td>
+            </tr>
+            <tr>
+                <td>Objectivo</td>
+                <td>@Model.Objective</td>
+            </tr>
+            <tr>
+                <td>Avaliação</td>
+                <td>@Model.Evaluation</td>
+            </tr>
+            <tr>
+                <td>Plano</td>
+                <td>@Model.Plan</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

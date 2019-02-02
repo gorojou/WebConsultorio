@@ -1,0 +1,758 @@
+﻿/*CUSTOM COMPONENTS FOR MDB*/
+
+/*CONTENT*/
+/*Used to assign the right margins to elements displayed under the .navbar css class*/
+.mdbc-content {
+    margin-top: 63px !important;
+    -webkit-transition: margin-top .5s ease-in-out, max-height .5s ease;
+    -moz-transition: margin-top .5s ease-in-out, max-height .5s ease;
+    -o-transition: margin-top .5s ease-in-out, max-height .5s ease;
+    transition: margin-top .5s ease-in-out, max-height .5s ease;
+}
+
+.mdbc-navbar.top-nav-collapse + div .mdbc-content {
+    margin-top: 63px !important;
+}
+
+@media only screen and (max-width: 992px) {
+    .mdbc-content {
+        margin-top: 100px !important;
+    }
+}
+
+/*SIDENAV*/
+
+.mdbc-sidenav {
+    top: 0;
+    width: 100%;
+    padding-bottom: 20px;
+}
+
+@media (min-width: 992px) {
+    .mdbc-sidenav {
+        z-index: 1;
+        top: 63px;
+        max-height: calc(100vh - 63px);
+        -moz-transform: translateX(0) !important;
+        -ms-transform: translateX(0) !important;
+        -o-transform: translateX(0) !important;
+        -webkit-transform: translateX(0) !important;
+        transform: translateX(0) !important;
+    }
+}
+
+/*SIDEBAR*/
+/*Used generally to present data to either side of the screen*/
+/*Css function 'calc' is used for max-height, with the following values: screen full height and navbar height*/
+.mdbc-sidebar {
+    overflow: auto;
+    max-height: calc(100vh - 100px);
+    position: fixed;
+    top: 100px;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    border-right: 1px solid #eee;
+}
+
+.mdbc-sidebar-left {
+    left: 0;
+}
+
+.mdbc-sidebar-right {
+    right: 0;
+}
+
+/* Sidebar navigation */
+.mdbc-sidebar {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+    .mdbc-sidebar .nav {
+        margin-bottom: 20px;
+    }
+
+    .mdbc-sidebar .nav-item {
+        width: 100%;
+    }
+
+        .mdbc-sidebar .nav-item + .nav-item {
+            margin-left: 0;
+        }
+
+    .mdbc-sidebar .nav-link {
+        border-radius: 0;
+    }
+
+@media only screen and (max-width: 992px) {
+    .mdbc-sidebar {
+        max-height: calc(100vh - 100px);
+    }
+}
+/*SIDEBAR END*/
+
+/*NOT AVAILABLE*/
+/*Used when a screen or something else in the software is not available*/
+.not-available {
+    z-index: 100000;
+    background-color: rgba(238, 238, 238, 1);
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+}
+
+    /*Css function 'calc' is used for margin-top, with the following values: screen half height, and the card half height*/
+    .not-available .card {
+        width: 300px;
+        margin: auto;
+        margin-top: calc(50vh - 150px);
+    }
+/*NOT AVAILABLE END*/
+
+/*CHAT*/
+/*Used to embed a chat into a View*/
+.mdbc-chat-input {
+    border-top: 1px solid #cccccc;
+    padding-top: 0 !important;
+}
+
+    .mdbc-chat-input .md-form {
+        margin: 0;
+    }
+
+    .mdbc-chat-input textarea {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        overflow: auto;
+        height: auto;
+        min-height: 0;
+        font-size: 0.8rem;
+    }
+
+/*
+    Css function 'calc' is used for height and max-height, with the following values: 
+    screen full height, textarea height (including margin), navbar height and mdbc-userbox height*/
+.mdbc-chat-messages {
+    max-height: calc(100vh - 173px);
+    padding: 0 10px;
+    overflow: auto;
+    width: 100%;
+}
+
+.mdbc-chat-title {
+    width: 100%;
+    padding: .6rem 1.6rem .6rem .6rem;
+    font-size: small;
+    position: relative;
+    cursor:pointer;
+}
+/*CHAT END*/
+
+/*USERBOX*/
+/*
+    Used to display a image and/or a title. 
+    Preferably used to display a profile (user, client, etc..) photo and/or name
+*/
+.mdbc-userbox {
+    padding: 20px 20px 10px 20px;
+    background-color: #ddd;
+}
+
+    .mdbc-userbox.halfpad {
+        padding: 10px 10px 5px 10px;
+    }
+
+    .mdbc-userbox .mdbc-pic {
+        width: 50px;
+        margin-bottom: 20px;
+    }
+
+/*USERBOX END*/
+
+/*NESTED LIST*/
+/*
+    Used to display data in jierarchy
+*/
+
+.mdbc-nestedlist {
+    overflow: auto;
+    padding: 2rem 1rem;
+    line-height: 30px;
+    font-size: 0.9rem;
+    max-height: calc(100vh - 79px - 94px);
+    margin: 0 -1rem;
+}
+
+    .mdbc-nestedlist .title small {
+        font-size: small;
+        vertical-align: middle;
+    }
+
+    .mdbc-nestedlist .header .icon {
+        margin-right: 20px;
+    }
+
+        .mdbc-nestedlist .header .icon.fa {
+            margin-left: 4px;
+            font-size: 20px;
+        }
+
+    .mdbc-nestedlist > li > ul {
+        margin: 10px 0;
+        list-style-type: disc;
+    }
+
+        .mdbc-nestedlist > li > ul:not(.header) > li {
+            list-style-type: disc;
+            margin-left: 25px;
+            padding-left: 20px;
+        }
+
+    .mdbc-nestedlist > li > a {
+        display: block;
+        font-size: 0.9rem;
+        height: auto;
+        line-height: normal;
+        padding-left: 0;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .mdbc-nestedlist hr {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-color: #dae4ee;
+    }
+
+
+@media only screen and (max-width: 992px) {
+    .mdbc-nestedlist {
+        line-height: 30px;
+        font-size: 0.9rem;
+        max-height: calc(100vh - 92px);
+    }
+}
+/*NESTED LIST END*/
+
+.mdbc-table {
+}
+
+    .mdbc-table tr td, .mdbc-table tr th {
+        font-weight: normal;
+    }
+
+        .mdbc-table tr td:first-child, .mdbc-table tr th:first-child {
+            padding-left: 2rem;
+        }
+
+        .mdbc-table tr td:last-child, .mdbc-table tr th:last-child {
+            padding-right: 2rem;
+        }
+
+        .mdbc-table tr td a {
+            margin: 0;
+        }
+
+        .mdbc-table tr td .material-icons {
+            font-size: 1rem;
+        }
+
+        .mdbc-table tr td button {
+            padding: 0;
+            margin: 0;
+        }
+
+        .mdbc-table tr td .btn-flat {
+            padding: 8px 15px;
+        }
+
+.mdbc-input-inline {
+    width: 45px !important;
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+
+
+.mdbc-autosave-label {
+    min-width: 180px;
+}
+
+/*OVERRIDES*/
+
+/*Used to make the tab-content element height equal to the display of the browser*/
+/*Css function 'calc' is used, with the following values: screen full height, .tab-wrapper height, padding-top value and navbar height*/
+.tab-content.mdbc-tab-content {
+    min-height: calc(100vh - 63px);
+    padding-bottom: 8%;
+}
+
+    .tab-content.mdbc-tab-content .fixed-action-btn {
+        right: 20%;
+    }
+
+.navbar.mdbc-navbar .float-left {
+    display: inherit;
+}
+
+main.mdbc-main {
+    padding-top: 15px;
+}
+
+span.mdbc-validation-error {
+    min-height: 24px;
+    display: block;
+}
+
+.mdbc-table .mdbc-actions {
+    padding-left: 0;
+    min-width: 80px;
+}
+
+.mdbc-table-addrow {
+}
+
+    .mdbc-table-addrow td {
+        padding: 0 .75rem;
+    }
+
+        .mdbc-table-addrow td input {
+            margin: 0 0 10px 0;
+        }
+
+        .mdbc-table-addrow td.mdbc-actions {
+            padding-top: 16px;
+        }
+
+            .mdbc-table-addrow td.mdbc-actions button {
+                border: none;
+                cursor: pointer;
+            }
+
+            .mdbc-table-addrow td.mdbc-actions a {
+                margin: 0;
+            }
+
+body.modal-open {
+    overflow: hidden !important;
+}
+
+.classic-tabs {
+    overflow-x: auto !important;
+}
+
+.mdbc-modal-action {
+    position: absolute;
+    right: 15px;
+    text-shadow: 0 1px 0 #fff;
+}
+
+    .mdbc-modal-action .close {
+        position: relative;
+        right: 0;
+    }
+
+    .mdbc-modal-action > a {
+        padding: 0 5px;
+        color: #000;
+        opacity: .5;
+    }
+
+        .mdbc-modal-action > a:hover {
+            opacity: 1;
+        }
+
+.loader-container {
+    padding: 20vh 3rem;
+    align-self: center;
+    height: 100%;
+}
+
+.mdb-autocomplete-wrap {
+    min-width: 180px;
+    text-align: left;
+}
+
+@media only screen and (max-width: 992px) {
+    .tab-content.mdbc-tab-content .fixed-action-btn {
+        right: 28%;
+        bottom: 2%;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 992px) {
+    .mdbc-modal .modal-dialog {
+        max-width: 95%;
+    }
+}
+/*OVERRIDES END*/
+
+/*UTILITIES*/
+
+.mdbc-icon-md {
+    font-size: 1.5rem !important;
+}
+
+.mdbc-sidenav-s {
+    width: 20%;
+}
+
+.mdbc-sidenav-m {
+    width: 40%;
+}
+
+.mdbc-sidenav-l {
+    width: 60%;
+}
+
+.mdbc-absolute {
+    position: absolute;
+    padding: 10px 0;
+}
+
+    .mdbc-absolute.left {
+        left: 0;
+    }
+
+    .mdbc-absolute.bottom {
+        bottom: 0;
+    }
+
+    .mdbc-absolute.right {
+        right: 0;
+    }
+
+.mdbc-margintop-10 {
+    margin-top: 10px;
+}
+
+.mdbc-zindex-10 {
+    z-index: 10;
+}
+
+.mdbc-nomargin {
+    margin: 0 !important;
+}
+
+.mdbc-pad-10 {
+    padding: 10px;
+}
+
+.mdbc-nopad {
+    padding: 0 !important;
+}
+
+.mdbc-alittlesmaller {
+    font-size: 0.9em !important;
+}
+
+.mdbc-sidenav-btn {
+    display: block;
+    position: relative;
+    font-size: 1.4rem !important;
+    margin-top: 2px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.mdbc-btn-fullwidth {
+    font-size: 0.7em;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+    .mdbc-btn-fullwidth.mdbc-nomargin {
+        font-size: 1em;
+        width: 100%;
+    }
+/*UTILITIES END*/
+
+
+/*EXPERIMENT*/
+
+.navbar {
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.mdbc-navbar-addon {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    z-index: -1;
+    margin-bottom: -7px;
+    -webkit-transition: height .5s ease-in-out;
+    -moz-transition: height .5s ease-in-out;
+    -o-transition: height .5s ease-in-out;
+    transition: height .5s ease-in-out;
+}
+
+.top-nav-collapse .mdbc-navbar-addon {
+    height: 70px;
+}
+
+@media only screen and (max-width: 992px) {
+    .mdbc-navbar-addon {
+        margin-bottom: -2px;
+        position: relative;
+    }
+}
+
+.mdbc-navbar-actions a {
+    padding: 20px 10px;
+    font-size: 19px;
+}
+
+.mdbc-chat-video.active + .mdbc-chat-messages {
+    max-height: calc(50% - 40px);
+}
+
+.mdbc-chat-video.active {
+    height: calc(50% - 23px);
+    background: lightgray;
+    position: absolute;
+    align-self: flex-start;
+}
+
+    .mdbc-chat-video.active > div.mirror {
+        width: 3.5rem;
+        height: 4.5rem;
+        position: absolute;
+        background: gray;
+        right: 10px;
+        top: 10px;
+        display: none;
+    }
+
+    .mdbc-chat-video.active.video > div.mirror {
+        display: flex;
+    }
+
+    .mdbc-chat-video.active #btnFullScreen {
+        display: none !important;
+    }
+
+    .mdbc-chat-video.active.video #btnFullScreen {
+        display: inline-block !important;
+    }
+
+    .mdbc-chat-video.active > div.remote {
+        display: flex;
+        height: 100%;
+    }
+
+    .mdbc-chat-video.active video {
+        width: 100%;
+    }
+
+    .mdbc-chat-video.active > div.actions {
+        width: 100%;
+        height: 3rem;
+        position: absolute;
+        bottom: 10px;
+    }
+
+    .mdbc-chat-video.active > img.user-img {
+        display: block;
+        position: absolute;
+        width: 75%;
+        left: 0;
+        right: 0;
+        top: 0px;
+        bottom: 25%;
+        margin: auto;
+        opacity: .5;
+    }
+
+    .mdbc-chat-video.active.video > img.user-img, .mdbc-chat-video > img.user-img {
+        display: none;
+    }
+
+
+.mdbc-chat-video > div.actions .btn-floating {
+    display: none;
+}
+
+.mdbc-chat-video.active > div.actions .btn-floating {
+    margin: 0;
+    display: inline-block;
+}
+
+    .mdbc-chat-video.active > div.actions .btn-floating i {
+        font-size: 1rem;
+    }
+
+
+.mdbc-chat-container {
+    height: calc(100vh - 115px);
+    display: flex;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    -ms-align-content: flex-end;
+    -webkit-align-content: flex-end;
+    align-content: flex-end;
+}
+
+.mdbc-chat-video {
+    width: 100%;
+}
+
+    .mdbc-chat-video .loading {
+        position: absolute;
+        top: calc(50% - 27.5px);
+        left: calc(50% - 24px);
+    }
+
+
+.mdbc-toast {
+    position: fixed;
+    width: 50vw;
+    bottom: 0;
+    z-index: 10000;
+    background: #323232;
+    color: rgba(255,255,255,0);
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 14pt 24pt;
+    cursor: pointer;
+    -moz-transform: translateY(100%);
+    -ms-transform: translateY(100%);
+    -o-transform: translateY(100%);
+    -webkit-transform: translateY(100%);
+    transform: translateY(100%);
+    -moz-transition: transform ease 333ms, color ease 666ms;
+    -o-transition: transform ease 333ms, color ease 666ms;
+    -webkit-transition: transform ease 333ms, color ease 666ms;
+    transition: transform ease 333ms, color ease 666ms;
+}
+
+    .mdbc-toast.active {
+        -moz-transform: translateY(0);
+        -ms-transform: translateY(0);
+        -o-transform: translateY(0);
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        color: white;
+    }
+
+
+.classic-tabs .nav-link .material-icons { 
+    font-size: 1rem;
+    margin: 0;
+    vertical-align: text-bottom;
+}
+
+.mdbc-fullscreen .mdbc-chat-video.active > div.mirror {
+    width: 9rem;
+    height: 12rem;
+    right: 2rem;
+    top: 2rem;
+}
+
+.mdbc-fullscreen .mdbc-chat-video.active {
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.mdbc-fullscreen .mdbc-chat-video.active > img.user-img {
+    position: absolute;
+    width: 30%;
+}
+
+@media only screen and (min-width: 992px) {
+    .mdbc-chat-container {
+        height: calc(100vh - 79px);
+    }
+
+    .mdbc-sidebar {
+        max-height: calc(100vh - 63px);
+        top: 63px;
+    }
+
+    .mdbc-chat-messages {
+        max-height: calc(100vh - 135px);
+    }
+}
+
+.datetimeformessages {
+    width: 28%;
+    float: left;
+    padding: 10px;
+    color: #000;
+    font-size: 0.7rem;
+    word-wrap: break-word;
+}
+
+.message {
+    width: 60%;
+    margin-left: 10%;
+    float: left;
+    padding: 10px;
+    background: #87c2ee;
+    color: white;
+    border-radius: 20px;
+    border-bottom-right-radius: 0;
+    font-size: 0.7rem;
+    word-wrap: break-word;
+}
+
+.messageme {
+    width: 60%;
+    margin-right: 10%;
+    margin-left: 0;
+    float: left;
+    padding: 10px;
+    background: #e5e3e4;
+    color: black;
+    border-radius: 20px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 20px;
+    margin-left: 0;
+    font-size: 0.7rem;
+    word-wrap: break-word;
+}
+
+.strikeit {
+    display: block;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0.7rem;
+}
+
+.strikeit > span {
+    position: relative;
+    display: inline-block;
+}
+
+.strikeit > span:before,
+.strikeit > span:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 200px;
+    height: 1px;
+    background: #000;
+}
+
+.strikeit > span:before {
+    right: 100%;
+    margin-right: 10%;
+}
+
+.strikeit > span:after {
+    left: 100%;
+    margin-left: 10%;
+}

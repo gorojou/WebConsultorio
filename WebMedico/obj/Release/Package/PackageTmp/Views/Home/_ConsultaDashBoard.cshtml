@@ -1,0 +1,237 @@
+﻿@using WebMedico.Hubs
+@using WebMedico.Extensions
+@using System.Configuration
+@model WebMedico.Models.ConsultaDashBoardViewModel
+@_WebMedicoHelpers.CssForMoreToggle()
+@_WebMedicoHelpers.JQueryForMoreToggle(15)
+
+@*inicio Trello 1.22.11*@
+@*<script src="~/Scripts/jquery-3.1.1.js"></script>*@
+@*<script src="~/Scripts/bootstrap.min.js"></script>*@
+<script src="~/Scripts/bootstrap-session-timeout.js"></script>
+<script src="~/Scripts/utility.js"></script>
+@*fin Trello 1.22.11*@
+
+@{
+//string paraprobartextolargo = "Hace unos días, el propio Icardi cerraba en Sky Sports la puerta a una posible salida: Si llegara una llamada desde Madrid, no contestaría.Ya sabéis lo que pienso.No hay nada que decir. Su técnico, Luciano Spalletti, en Rai Sport, comentaba la situación de su jugador: Me encuentro con él todos los días y me parece que está enamorado de este equipo, de los compañeros. Vive muy bien en Milán, con los aficionados hay amor, así que no tengo dudas de que se quedará aquí. Quiere firmar un contrato con el Inter y quedarse.Si alguien le pregunta cuánto va a permanecer aquí, él dice que será hasta el final de su carrera";
+}
+
+
+    <div class="col-md-7 mb-r">
+        <div class="card">
+            <table class="table mdbc-nomargin">
+                <thead class="card-table-head">
+                    <tr>
+                        <th class="text-left">As minhas consultas (@Model.InProgressList.Count)</th>
+                        <th class="text-right">
+                            <a href="#" style="color: #FE2E9A; text-decoration-line:underline">Ver histórico de consultas</a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="card-table-body hover">
+                    @foreach (var item in Model.InProgressList)
+                    {
+
+                        string msg = string.Empty;
+                        <tr class="noborders">
+                            <td colspan="2" class="nasted-table waves-effect" onclick="location.href = '@Url.Action("ConsultDetail", "Home", new { idConsulta = item.IdConsulta })'">
+                                <table class="table ">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:33.3%;">
+                                                <strong class="first-mayuscula">@item.Name.ToLower()</strong>
+                                            </td>
+                                            <td style="width:33.3%;"></td>
+                                            <td class="text-right" style="width:33.3%;">
+                                                <strong>@item.Date.CustomDateTimeToString(DateTimeExtensions.ConsultaSaladeEsperaDateTimeFormat)</strong>
+                                                <h6>@CustomWebHelpers.GetDateDifferenceStringFormatted(item.Date)</h6>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="black-54 more_or_less_text withpaddings">
+                                                    <div class="notignoretext">@item.Description@*paraprobartextolargo*@</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                @{
+
+                                                    if (!string.IsNullOrEmpty(item.Notes))
+                                                    {
+                                                        msg = item.Notes.Trim();
+                                                        <div class="black-54 more_or_less_text withpaddings">
+                                                            <div class="notignoretext">
+                                                                <b>Instruções do médico.</b> @msg@*@paraprobartextolargo*@
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <span class="black-54"><strong>@item.Age anos</strong></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+
+                                                <!-- Pais -->
+                                                <img src="@("../Content/images/flags/flags/24/" + item.Country + ".png" )" align="left" alt="@(item.Country)" />
+                                                &nbsp;
+
+                                                <!-- Genero -->
+                                                @if (item.Gender == "M")
+                                                {
+
+                                                    <i class="fa fa-mars male" aria-hidden="true"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-venus female" aria-hidden="true"></i>
+                                                }
+                                                &nbsp;
+
+                                                <!-- Estatus conexion -->
+                                                <i class="fa fa-circle offline" aria-hidden="true"></i>
+                                                <input type="hidden" class="userid" value="@item.IdUtente">
+
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                                                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-5 mb-r">
+        <div class="card">
+            <table class="table mdbc-nomargin">
+                <thead class="card-table-head">
+                    <tr>
+                        <th class="text-left">Consultas pendentes (@Model.OpenList.Count)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="card-table-body hover">
+
+                    @foreach (var item in Model.OpenList)
+                    {
+                        <tr class="noborders">
+                            <td colspan="2" class="nasted-table ">
+                                <table class="table ">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:66.6%;">
+                                                <strong class="first-mayuscula">@item.Name.ToLower()</strong>
+                                            </td>
+                                            <td class="text-right" style="width:33.3%;">
+                                                <strong>@item.Date.CustomDateTimeToString(DateTimeExtensions.ConsultaSaladeEsperaDateTimeFormat)</strong>
+                                                <h6>@CustomWebHelpers.GetDateDifferenceStringFormatted(item.Date)</h6>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <div class="black-54 more_or_less_text withpaddings">
+                                                    <div class="notignoretext">@item.Description@*@paraprobartextolargo*@</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <span class="black-54"><strong>@item.Age anos</strong></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <!-- Pais -->
+                                                <img src="@("../Content/images/flags/flags/24/" + item.Country + ".png" )" align="left" alt="@(item.Country)" />
+                                                &nbsp;
+
+                                                <!-- Genero -->
+                                                @if (item.Gender == "M")
+                                                {
+
+                                                    <i class="fa fa-mars male" aria-hidden="true"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-venus female" aria-hidden="true"></i>
+                                                }
+                                                &nbsp;
+
+                                                <!-- Estatus conexion -->
+                                                <i class="fa fa-circle offline" aria-hidden="true"> </i>
+                                                <input type="hidden" class="userid" value="@item.IdUtente">
+                                            </td>
+                                            <td class="text-right">
+                                                <a data-toggle="modal" data-target="#modalForgotPassword" style="color: #FE2E9A" data-idconsulta=@item.IdConsulta>ASSUMIR</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center">
+                    <a href="@Url.Action("Index", "Home", new {skip = Model.Skip, take = Model.Take + 10})" class="btn btn-primary">
+                        <i class="material-icons">file_download</i> carregue mais itens
+                    </a>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <!-- PARAMETERS FOR SESSION TIME OUT. Trello 1.22.11-->
+        <input type="hidden" id="millisecWarning" name="millisecWarning" value="@Model.SessionConfig.MillisecWarning" />
+        <input type="hidden" id="millisecRedir" name="millisecRedir" value="@Model.SessionConfig.MillisecRedir" />
+        <input type="hidden" id="titleSession" name="titleSession" value="@Model.SessionConfig.Title" />
+        <input type="hidden" id="messageSession" name="messageSession" value="@Model.SessionConfig.Message" />
+        <input type="hidden" id="keepAliveButton" name="keepAliveButton" value="@Model.SessionConfig.KeepAliveButton" />
+        <input type="hidden" id="logoutButton" name="logoutButton" value="@Model.SessionConfig.LogoutButton" />
+        <input type="hidden" id="keepAlive" name="keepAlive" value="@Model.SessionConfig.KeepAlive" />
+        <input type="hidden" id="countdownBar" name="countdownBar" value="@Model.SessionConfig.CountdownBar" />
+        <input type="hidden" id="countdownMessage" name="countdownMessage" value="@Model.SessionConfig.CountdownMessage" />
+        <input type="hidden" id="countdownSmart" name="countdownSmart" value="@Model.SessionConfig.CountdownSmart" />
+
+    </div>
+<script src="~/Content/Assets/js/components/twilio-helper.js"></script>
+<script>
+        var model = @Html.Raw(Json.Encode(Model));
+</script>
+
+<script>
+$(document).ready(function ()
+{
+    $.sessionTimeout(
+        {
+            title: $("#titleSession").val(),
+            message: $("#messageSession").val(),
+            keepAliveButton: $("#keepAliveButton").val(),
+            keepAliveUrl: '',
+            keepAlive: $("#keepAlive").val(),
+            logoutButton: $("#logoutButton").val(),
+            logoutUrl: '@Url.Action(Model.SessionConfig.ActionName, Model.SessionConfig.ControllerName)',
+            redirUrl: '@Url.Action(Model.SessionConfig.ActionName, Model.SessionConfig.ControllerName)',
+            warnAfter: $("#millisecWarning").val(),
+            redirAfter: $("#millisecRedir").val(),
+            countdownBar: $("#countdownBar").val(),
+            countdownMessage: $("#countdownMessage").val() + '{timer}',
+            countdownSmart: $("#countdownSmart").val()
+            });
+    noBack();
+    isOnline('@ConfigurationManager.AppSettings["ApiUrl"]');
+});
+</script>

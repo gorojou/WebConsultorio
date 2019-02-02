@@ -1,0 +1,118 @@
+﻿@model IFarmacias.Models.SoapResponse
+
+<style>
+    .mdbc-pickphoto {
+        text-align: center;
+        padding: 10px 10px;
+    }
+
+        .mdbc-pickphoto img {
+            border-radius: 50% !important;
+            min-height: 57%;
+        }
+
+        .mdbc-pickphoto button {
+            margin: 0;
+            margin-top: -20px;
+            font-size: .55rem;
+            padding: .5rem .6rem !important;
+        }
+
+            .mdbc-pickphoto button i {
+                font-size: .6rem !important;
+            }
+
+    .mdbc-register .md-form .prefix {
+        margin-left: 1.5rem;
+    }
+
+        .mdbc-register .md-form .prefix ~ label {
+            margin-left: 6.1rem;
+        }
+
+        .mdbc-register .md-form .prefix ~ input, .mdbc-register .md-form .prefix ~ textarea {
+            margin-left: 6.1rem;
+            width: calc(100% - 6.1rem);
+        }
+
+    .mdbc-register .md-form .dropdown-left-icon {
+        margin-left: 6.1rem;
+    }
+
+    .mdbc-register .md-form .dropdown-left-icon {
+        margin-left: 6.1rem;
+    }
+
+    input[type=date].invalid, input[type=date]:focus.invalid, input[type=datetime-local].invalid, input[type=datetime-local]:focus.invalid, input[type=email].invalid, input[type=email]:focus.invalid, input[type=number].invalid, input[type=number]:focus.invalid, input[type=password].invalid, input[type=password]:focus.invalid, input[type=search-md].invalid, input[type=search-md]:focus.invalid, input[type=search].invalid, input[type=search]:focus.invalid, input[type=tel].invalid, input[type=tel]:focus.invalid, input[type=text].invalid, input[type=text]:focus.invalid, input[type=time].invalid, input[type=time]:focus.invalid, input[type=url].invalid, input[type=url]:focus.invalid, textarea.md-textarea.invalid, textarea.md-textarea:focus.invalid {
+        border-bottom: 1px solid #F44336 !important;
+        box-shadow: 0 1px 0 0 #F44336 !important;
+    }
+
+    input[type=date] + label:after, input[type=datetime-local] + label:after, input[type=email] + label:after, input[type=number] + label:after, input[type=password] + label:after, input[type=search-md] + label:after, input[type=search] + label:after, input[type=tel] + label:after, input[type=text] + label:after, input[type=time] + label:after, input[type=url] + label:after, textarea.md-textarea + label:after {
+        width: 200px;
+    }
+</style>
+
+<div class="col-12">
+    @using (Ajax.BeginForm("SetTabSoap",
+                        new { idConsulta = ViewBag.idConsulta },
+                        new AjaxOptions()
+                        {
+                            OnBegin = "autosaveLoading",
+                            OnSuccess = "autosaveSuccess",
+                            OnFailure = "autosaveError"
+                        },
+                        new
+                        {
+                            @class = "autosave",
+                            data_label = "#lblStateSOAP",
+                            data_text_loading = "Salvando alterações...",
+                            data_text_loaded = "Alterações salvas",
+                            data_text_error = "Ocorreu um erro, por favor tente mais tarde"
+                        }
+                    ))
+    {
+        @Html.HiddenFor(x => x.Date)
+        @Html.HiddenFor(x => x.IdSoap)
+        <div class="text-right">
+            <label id="lblStateSOAP" class="text-left mdbc-autosave-label"><i class="fa fa-floppy-o"></i>&nbsp;Alterações salvas</label>
+        </div>
+        <div class="md-form">
+            @Html.LabelFor(m => m.Subjective, "Subjetivo", new { @class = "" })
+            @Html.TextAreaFor(m => m.Subjective, new { @class = "form-control md-textarea validField tabSoapField", @id = "fldSubjective" })
+        </div>
+
+        <br />
+        <div class="md-form">
+            @Html.LabelFor(m => m.Objective, "Objetivo", new { @class = "" })
+            @Html.TextAreaFor(m => m.Objective, new { @class = "form-control md-textarea validField tabSoapField", @id = "fldObjective" })
+        </div>
+
+        <br />
+        <div class="md-form">
+            @Html.LabelFor(m => m.Evaluation, "Avaliação", new { @class = "" })
+            @Html.TextAreaFor(m => m.Evaluation, new { @class = "form-control md-textarea validField tabSoapField", @id = "fldEvaluation" })
+        </div>
+
+        <br />
+        <div class="md-form">
+            @Html.LabelFor(m => m.Plan, "Plano terapêutico", new { @class = "" })
+            @Html.TextAreaFor(m => m.Plan, new { @class = "form-control md-textarea validField tabSoapField", @id = "fldPlan" })
+        </div>
+    }
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $('.validField').blur(function (e) {
+            if ($(this).val() == '') {
+                $(this).addClass("invalid");
+            } else {
+                $(this).removeClass("invalid");
+            }
+        });
+
+        
+    });
+</script>

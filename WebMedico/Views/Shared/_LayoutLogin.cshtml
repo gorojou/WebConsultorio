@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title Health Link International LTD</title>
+    @Scripts.Render("~/bundles/jquery")
+    @Styles.Render("~/css/css")
+
+</head>
+<body class="fixed-sn mdb-skin">
+    <header>
+        <!--Navbar-->
+        @*<nav class="navbar fixed-top navbar-toggleable-md navbar-dark scrolling-navbar double-nav">
+
+        </nav>*@
+        <!--/.Navbar-->
+    </header>
+    <br />
+        <div class="container body-content">
+            @RenderBody()
+        </div>
+    <br />
+    <br />
+    <br />
+    <footer class="page-footer blue center-on-small-only fixed-bottom">
+        <p>&emsp; &copy; @DateTime.Now.Year Health Link International LTD</p>
+    </footer>
+
+    @Scripts.Render("~/bundles/tether")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/mdb")
+
+    @RenderSection("scripts", required: false)
+    <script>
+
+        var states = [
+            "Brasil",
+            "Portugal",
+            "Venezuela",
+            "Chile",
+            "Argentina"
+        ];
+        $(document).ready(function () {
+            $('.mdb-select').material_select();
+            $('.mdb-autocomplete').mdb_autocomplete({
+                data: states
+            });
+
+            $('.datepicker').pickadate({
+                format: 'yyyy-mm-dd',
+                formatSubmit: 'yyyy-mm-dd',
+                selectYears: 100,
+                min: new Date((@DateTime.Now.Year-100), 1, 1),
+                max: new Date(@DateTime.Now.Year, @DateTime.Now.Month, @DateTime.Now.Day),
+                today: 'Hoje',
+                clear: 'Limpar',
+                close: 'Cancelar'
+                //max: true
+            });
+        });
+    </script>
+</body>
+</html>

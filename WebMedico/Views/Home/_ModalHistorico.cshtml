@@ -1,0 +1,82 @@
+﻿@model IFarmacias.Models.PatientHistoryInfoResponse
+<div class="modal-dialog modal-fluid modal-lg" role="document">
+    <div class="modal-content">
+        <!--Header-->
+        <div class="modal-header">
+            <div class="btn-group mdbc-modal-action">
+                <a class="close material-icons" data-dismiss="modal" aria-label="Close">close</a>
+            </div>
+            <h4 class="modal-title" id="myModalLabel">Histórico Consulta</h4>
+        </div>
+        <div class="modal-body mdbc-nopad">
+            <div class="modal-c-tabs">
+                <!-- Nav tabs -->
+                <ul class="nav classic-tabs blue" role="tablist">
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link active" data-toggle="tab" href="#panelMotivoHistorico" role="tab" aria-expanded="true">Motivo</a>
+                    </li>
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link" data-toggle="tab" href="#panelSoapHistorico" role="tab" aria-expanded="false">SOAP</a>
+                    </li>
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link" data-toggle="tab" href="#panelAnexosHistorico" role="tab" aria-expanded="false">Anexos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link waves-light" data-toggle="tab" href="#panelReceitasHistorico" role="tab" aria-expanded="false">Receitas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link waves-light" data-toggle="tab" href="#panelMcdtHistorico" role="tab" aria-expanded="false">MCDT</a>
+                    </li>
+                </ul>
+                <!-- Tab panels -->
+                <div class="tab-content">
+                    <div class="tab-pane fade in show active" id="panelMotivoHistorico" role="tabpanel" aria-expanded="true">
+                        @Html.Action("_TabMotivoHistorico", Model)
+                    </div>
+                    <div class="tab-pane fade" id="panelSoapHistorico" role="tabpanel" aria-expanded="false">
+                    </div>
+                    <div class="tab-pane fade" id="panelAnexosHistorico" role="tabpanel" aria-expanded="false">
+                    </div>
+                    <div class="tab-pane fade" id="panelReceitasHistorico" role="tabpanel" aria-expanded="false">
+                    </div>
+                    <div class="tab-pane fade" id="panelMcdtHistorico" role="tabpanel" aria-expanded="false">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+        </div>
+    </div>
+    <script>
+        function onModalHistoricoLoaded() {
+            $('#panelSoapHistorico').html($('#loader').html());
+            $('#panelAnexosHistorico').html($('#loader').html());
+            $('#panelReceitasHistorico').html($('#loader').html());
+            $('#panelMcdtHistorico').html($('#loader').html());
+            $.ajax({
+                url: "@Url.Action("_TabSoapHistorico", new { idConsultaHistorico = Model.IdConsulta })",
+                success: function (result) {
+                    $('#panelSoapHistorico').html(result);
+                }
+            });
+            $.ajax({
+                url: "@Url.Action("_TabAnexosHistorico", new { idConsultaHistorico = Model.IdConsulta })",
+                success: function (result) {
+                    $('#panelAnexosHistorico').html(result);
+                }
+            });
+            $.ajax({
+                url: "@Url.Action("_TabReceitasHistorico", new { idConsultaHistorico = Model.IdConsulta })",
+                success: function (result) {
+                    $('#panelReceitasHistorico').html(result);
+                }
+            });
+            $.ajax({
+                url: "@Url.Action("_TabMCDTHistorico", new { idConsultaHistorico = Model.IdConsulta })",
+                success: function (result) {
+                    $('#panelMcdtHistorico').html(result);
+                }
+            });
+        }
+    </script>
+</div>

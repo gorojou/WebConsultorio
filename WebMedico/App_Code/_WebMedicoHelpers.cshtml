@@ -1,0 +1,761 @@
+﻿@using WebMedico.App_Code;
+@using IFarmacias.Models.Response;
+@using WebMedico.Extensions;
+@helper CssForPartialMessageNotifications()
+{
+    <style>
+        .numberCircle {
+            height: 30px;
+            width: 30px;
+            line-height: 30px;
+            -moz-border-radius: 15px;
+            border-radius: 15px;
+            background-color: lightgray;
+            color: black;
+            text-align: center;
+            font-size: 1em;
+            float: left;
+            text-transform: uppercase;
+        }
+
+        .headerofuser {
+            text-transform: capitalize;
+        }
+
+        .textofuser {
+            text-align: justify !important;
+            padding-left: 40px !important;
+        }
+    </style>
+}
+@helper CshtmlPartialMessageNotificationsHeader(int? TotalMsgCount)
+{
+    <a class="nav-link dropdown-toggle waves-effect waves-light" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        @if (TotalMsgCount.HasValue)
+        {
+            if (TotalMsgCount.Value > 0)
+            {
+                <span class="badge red">@TotalMsgCount</span>
+            }
+        }
+        <i class="material-icons text-white">chat_bubble</i>
+        <span class="hidden-sm-down"></span>
+    </a>
+}
+@helper CshtmlPartialMessageNotificationsDropDownMenu(List<TwilioUserChannelsResponse> Model)
+{
+    <div class="dropdown-menu header-notifications animated dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+        <div class="mail" style="line-height:100px">
+            <div style="float:left;line-height: 35px">
+                <svg x="0px" y="0px" width="35px" height="35px" viewBox="0 0 76 76" preserveAspectRatio='xMinYMin'>
+                    <path fill="#33B5E5"
+                          fill-opacity="1"
+                          stroke-width="0.2"
+                          stroke-linejoin="round"
+                          d="M 21.5,23L 54.5,23C 56.2489,23 58,24.7511 58,26.5L 58,49.5C 58,51.2489 56.2489,53 54.5,53L 21.5,53C 19.7511,53 18,51.2489 18,49.5L 18,26.5C 18,24.7511 19.7511,23 21.5,23 Z M 22,47C 22,48.3117 22.6883,49 24,49L 52,49C 53.3117,49 54,48.3117 54,47L 54,29L 40.6563,42.6567C 39.4197,43.8933 37.4146,43.8933 36.178,42.6567L 22,29L 22,47 Z M 25,27L 36.7378,38.7381C 37.6653,39.6656 39.169,39.6656 40.0965,38.7381L 52,27L 25,27 Z ">
+                    </path>
+                </svg>
+            </div>
+            <div style="float:left;line-height:35px">
+                Mensagens
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <ul id="conversationsList">
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    string channelid = item.ChannelId;
+                    int unreadmessagecount = (item.UnreadMessagesCount.HasValue) ? item.UnreadMessagesCount.Value : 0;
+                    string dt = (item.LastChatMessageDateTime == null) ? "" : item.LastChatMessageDateTime.Value.CustomDateTimeToString();
+                    <li class="active-notification" data-channelid="@channelid">
+                        @if (unreadmessagecount > 0)
+                        {
+                            <span class="badge red">@unreadmessagecount</span>
+                        }
+                        <div class="numberCircle">@item.ChannelFriendlyName.Substring(0, 1)</div>
+                        <div class="title headerofuser" style="padding-left:40px;">@item.ChannelFriendlyName.ToLower()</div>
+                        <div class="textofuser">
+                            @item.Description
+                            <div style="color:#04abe9;">@dt</div>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+@helper CssForMoreToggle()
+{
+    <style>
+        .first-mayuscula {
+            text-transform: capitalize;
+        }
+
+        a.morelink {
+            text-decoration: none;
+            outline: none;
+            color: #000;
+            font-weight: normal;
+        }
+
+        .strong {
+            font-weight: bold;
+        }
+
+        .withpaddings {
+            padding-left: 3em;
+            padding-right: 3em;
+            width: 100%;
+        }
+
+        .ui-tooltip {
+            background: #848387;
+            color: #05abe9;
+            border: none;
+            padding: 0;
+            opacity: 1;
+            min-height: 3em;
+            border-radius: 5px;
+            width: 30%;
+        }
+
+        .ui-tooltip-content {
+            position: relative;
+            padding: 1em;
+        }
+
+            .ui-tooltip-content::after {
+                content: '';
+                position: absolute;
+                border-style: solid;
+                display: block;
+                width: 0;
+            }
+
+            .ui-tooltip-content::after {
+                top: -10px;
+                left: 15%;
+                width: 30px;
+                height: 15px;
+                border-bottom: solid 15px #848387;
+                border-left: solid 15px transparent;
+                border-right: solid 15px transparent;
+            }
+
+        .more_or_less_text {
+            text-align: justify;
+            text-justify: inter-word;
+            line-height: 1.1;
+            height: 2.2em;
+        }
+
+        .more_or_less_text_transformed_content {
+            float: left;
+            overflow-y: hidden;
+            line-height: 1.1;
+            height: 2.2em;
+            text-align: justify;
+            text-justify: inter-word;
+            display: block;
+        }
+    </style>
+}
+@helper JQueryForMoreToggle(int size)
+{
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script>var $j = jQuery.noConflict(true);</script>
+    <script>
+        $j(document).ready(function () {
+            var showChar = @size;
+            var ellipsestext = "...";
+            var width = $j(this).width();
+            var moretext = "Ver detalhe";
+            $j('.more_or_less_text').each(function () {
+                var content = ''; var contenttext = '';
+                if ($j(this).has('.notignoretext')) {
+                    content = $j(this).find('.notignoretext').html();
+                    contenttext = $j(this).find('.notignoretext').text();
+                }
+                if (($j(this)[0].offsetHeight < $j(this)[0].scrollHeight) || ($j(this)[0].offsetWidth < $j(this)[0].scrollWidth)) {
+                    var size = 'h:' + $j(this)[0].offsetHeight + 'sh:' + $j(this)[0].scrollHeight + 'w' + $j(this)[0].offsetWidth + 'sw' + $j(this)[0].scrollWidth;
+                    var html =
+                          '<div class="more_or_less_text_transformed">'
+                                + '<div class="more_or_less_text_transformed_content">'
+                                    + content
+                                + '</div>'
+                                + '<div style="float:right;">'
+                                    + ellipsestext
+                                + '</div>'
+                                + '<div style="float:left;">'
+                                    + '<a href="#" title="' + contenttext + '" class="strong morelink"></a>'
+                                + '</div>'
+                        + '</div>';
+                    $j(this).html(html);
+                    $j(this).find('.morelink').tooltip({
+                        position: {
+                            my: "left top",
+                            at: "center bottom+10",
+                            collision: "none"
+                        }
+                    });
+                    $j(this).find('.more_or_less_text_transformed').mouseenter(function () {
+                        $j(this).find(".morelink").mouseenter();
+                    });
+                    $j(this).find('.more_or_less_text_transformed').mouseleave(function () {
+                        $j(this).find(".morelink").mouseleave();
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+@helper OnSubmit(string submitbtn, string innerformid, string cleardiv)
+{
+    <script>
+        $('@innerformid').on('submit', function (e) {
+            $('@cleardiv').html('');
+            //$('@submitbtn').attr('disabled', 'disabled');
+            if ($('@innerformid').valid()) {
+                return true;
+            }
+            else {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+}
+
+@helper CustomconfirmAction(string btn)
+{
+    <script>
+        $('@btn').removeAttr('disabled');
+    </script>
+}
+
+@helper SubmitWithFileConverter(string Container, string SubmitButton, string ProgressBarContainer, string outerformid, string innerformid, string ncountid, string ncountdivvalidator, string countvalidatortext)
+{
+    <script>
+        $('@ncountdivvalidator').html('');
+        $('@outerformid').on("submit", function (e) {
+            timeStart = new Date();
+            var ncount = $('@innerformid #@ncountid').val();
+            if (($('@outerformid').valid()) && ($('@innerformid').valid()) && (ncount>0)) {
+                CircularLoader();
+            }
+            if (ncount>0) {
+                if ($('@innerformid').valid()) {
+                    $.ajax({
+                        url: $('@innerformid').attr('action'),
+                        type: 'POST',
+                        data: $('@innerformid').serialize(),
+                        async: false,
+                        success: function () {
+                            if ($('@outerformid').valid()) {
+                                //valido
+                            }
+                            else {
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    });
+                }
+                else {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            else {
+                $('@ncountdivvalidator').html('@countvalidatortext');
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+    </script>
+}
+
+@helper DragandDrop(string Container, string draganddropid)
+{
+    <style>
+        #@draganddropid {
+            border: 2px dotted #0B85A1;
+            width: 100%;
+            color: #92AAB0;
+            text-align: left;
+            vertical-align: middle;
+            padding: 30px 30px 30px 30px;
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        $(document)
+            .on('dragover', function (e) {
+                e.originalEvent.dataTransfer.dropEffect = 'none';
+                return false;
+            })
+            .on('dragleave', function () {
+                return false;
+        });
+        var obj = $('@Container #@draganddropid');
+        obj.on({
+            'dragover': function (e) {
+                e.originalEvent.dataTransfer.dropEffect = 'copy';
+                return false;
+            },
+            'dragleave': function (e) {
+                return false;
+            },
+            'drop': function (e) {
+                    e.preventDefault();
+                    var files = e.originalEvent.dataTransfer.files;
+                    var file = files[0];
+                    FileUploader(file);
+                    return false;
+                }
+        });
+    </script>
+}
+
+@helper FileEditorDelete(string Container, string FileIdHiddenField, string FileNameHiddenField, string draganddropid)
+{
+    <script>
+        $('@Container #deletebutton').click(function () {
+            $('@Container #txtMessage').html('');
+            $('@FileIdHiddenField').val('');
+            $('@FileNameHiddenField').val('');
+            $('@Container #openfiledialog').prop('disabled', false);
+            $('@Container #@draganddropid').css('display', 'block');
+            $('@Container #uploadfilecontainer').fadeOut(100);
+            $(this).css('display', 'none');
+        });
+    </script>
+}
+
+@helper FileUploadFunctions(string Apiurl, string Container, string FileIdHiddenField, string FileNameHiddenField, string draganddropid)
+{
+    <script>
+            var filename = ''; var fileid = ''; var time = ''; var message = ''; var appendval = false;
+            var processedchunks = 0; var failingchunks = 0; var cancelchunks = 0; var numofchunks = 0;
+            var fileupload_updatefileerrors = function (message, append) {
+                UpdateFileErrors(message, append);
+            }
+
+            var fileupload_updatefileresults = function (message, append) {
+                UpdateFileResults(message, append);
+            }
+
+            var fileupload_updateprogressbar = function (currentchunk, totalchunks) {
+                UpdateProgressBar(currentchunk, totalchunks);
+            }
+
+            var fileupload_startingupload = function () {
+                StartingUpload();
+            }
+
+            var fileupload_finishingupload = function () {
+                FinishingUpload();
+            }
+
+            var upload = function (chunkindex, lastchunkindex, chunk)
+            {
+                return new Promise(function (resolve) {
+                    var uploadurl = '@Apiurl/api/PostFile';
+                    var paramdata = new FormData();
+                    paramdata.append('fileid', fileid);
+                    paramdata.append('filename', filename);
+                    paramdata.append('chunkindex', chunkindex);
+                    paramdata.append('lastchunkindex', lastchunkindex);
+                    paramdata.append('chunk', chunk);
+                    $.ajax({
+                        url: uploadurl,
+                        data: paramdata,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (returnval) {
+                            resolve(returnval);
+                        },
+                        error: function (returnval) {
+                            reject(returnval);
+                        }
+                    });
+                });
+            }
+
+            var startprocess = function (file) {
+                filename = file.name;
+                //chunkindex = 0;
+                fileid = ''; time = new Date().getTime();
+                processedchunks = 0;
+                fileupload_startingupload();
+            }
+
+            var doneprocess = function () {
+                 fileupload_updatefileresults(message, appendval);
+                 $('@FileIdHiddenField').val(fileid);
+                 $('@Container #deletebutton').css('display', 'block');
+                 $('@Container #txtMessage').html("Ficheiro Selecionado: " + filename);
+                 $('@Container #openfiledialog').prop('disabled', true);
+                 $('@Container #@draganddropid').css('display', 'none');
+                 fileupload_finishingupload();
+            }
+
+            var failedprocess = function () {
+                fileupload_updatefileerrors(message, appendval);
+            }
+
+            var inprogress = function () {
+                var msg = 'Leia o número do bloco <strong>' + processedchunks + '</strong> de <strong>' + numofchunks  + '</strong><br />';
+                fileupload_updatefileresults(msg, false);
+                fileupload_updateprogressbar(processedchunks, numofchunks);
+            }
+
+            var FileUploader = function (file) {
+                startprocess(file);
+                var ext = null;
+                try {
+                    ext = filename.split('.').pop().toLowerCase();
+                }
+                catch (err) {
+                    $('@Container #txtMessage').html('Nenhum arquivo selecionado');
+                    $('@Container #deletebutton').css('display', 'none');
+                    return;
+                }
+                if ($.inArray(ext, ['pdf']) == -1) {
+                    $('@Container #txtMessage').html('Extensão de arquivo inválida! apenas pdf');
+                    $('@Container #deletebutton').css('display', 'none');
+                    return;
+                }
+                $('@FileNameHiddenField').val(filename);
+                var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+                    BYTES_PER_CHUNK = 30000,//= 1048576,
+                    FILESIZE = file.size,
+                    NUM_OF_CHUNKS = Math.max(Math.ceil(FILESIZE / BYTES_PER_CHUNK), 1);
+                    numofchunks = NUM_OF_CHUNKS;
+                    var uploadfirstpromise = upload(0, numofchunks, file.slice(0, BYTES_PER_CHUNK));
+                    uploadfirstpromise.then(function (data) {
+                            processedchunks++;
+                            fileid = data;
+                            if (processedchunks >= NUM_OF_CHUNKS) {
+                                appendval = true;
+                                message = '<strong>Carregamento acabado!</strong><br />' + '<strong>Tempo total:</strong>' + (new Date().getTime() - time) + 'ms<br />' + '<strong>File hash:</strong>' + fileid + '<br />';
+                                doneprocess();
+                                return;
+                            }
+                            else {
+                                inprogress();
+                                let promises = [];
+                                for (var chunkindex = 1; chunkindex < NUM_OF_CHUNKS; chunkindex++) {
+                                    (function (chunkindex, BYTES_PER_CHUNK) {
+                                        var start = (chunkindex * BYTES_PER_CHUNK);
+                                        var end = start + BYTES_PER_CHUNK;
+                                        var uploadlooppromise = upload(chunkindex, NUM_OF_CHUNKS, file.slice(start, end));
+                                        promises.push(uploadlooppromise);
+                                        uploadlooppromise.then(function (data) {
+                                            processedchunks++;inprogress();
+                                        });
+                                    })(chunkindex, BYTES_PER_CHUNK);
+                                }
+                                Promise.all(promises)
+                                    .then((results) => {
+                                        appendval = true;
+                                        message = '<strong>Carregamento acabado!</strong><br />' + '<strong>Tempo total:</strong>' + (new Date().getTime() - time) + 'ms<br />' + '<strong>File hash:</strong>' + fileid + '<br />';
+                                        doneprocess();
+                                    });
+                            }
+                    });
+
+            }
+            $('@Container #openfiledialog').click(function () {
+                $('@Container input#fileUploaderControl').val('');
+                $('@Container input#fileUploaderControl').click();
+            });
+            $('@Container input#fileUploaderControl').on("change", function ()
+            {
+                var file = this.files[0];
+                FileUploader(file);
+            });
+    </script>
+}
+
+@helper FileUploadScripts(string Apiurl, string Container, string FileIdHiddenField, string FileNameHiddenField, string draganddropid)
+{
+    @_WebMedicoHelpers.FileEditorDelete(Container, FileIdHiddenField, FileNameHiddenField, draganddropid)
+    @_WebMedicoHelpers.DragandDrop(Container, draganddropid)
+    @_WebMedicoHelpers.FileUploadFunctions(Apiurl, Container, FileIdHiddenField, FileNameHiddenField, draganddropid)
+}
+
+@helper FileUploadControl(string ContainerId, string FileName)
+{
+    <style>
+        .mdbc-pickfile {
+            padding: 10px 10px;
+        }
+
+            .mdbc-pickfile button {
+                margin: 0;
+                margin-top: -20px;
+                font-size: .55rem;
+                padding: .5rem .6rem !important;
+            }
+
+                .mdbc-pickfile button i {
+                    font-size: .6rem !important;
+                }
+    </style>
+    <div id="@ContainerId" class="mdbc-pickfile">
+        <h5><strong>Adicionar Ficheiro</strong></h5>
+        <hr />
+        @{
+            string File = (string.IsNullOrEmpty(FileName)) ? string.Empty : "Ficheiro Selecionado: " + FileName;
+            string disabled = (File != string.Empty) ? "disabled" : "";
+            string visible = (File != string.Empty) ? "display:block" : "display:none;";
+            string dragandropvisible = (File == string.Empty) ? "display:block" : "display:none;";
+        }
+        <input type="file" name="fileUploaderControl" id="fileUploaderControl" style="display:none;">
+        <div style="clear:both"></div>
+        <div id="dragandrophandler" style="float:left;@dragandropvisible">
+            <a id="openfiledialog" @disabled>
+                <i class="fa fa-paperclip"><strong> Clique aqui</strong></i>
+            </a>
+            ou arraste e solte dentro desta caixa
+        </div>
+        <div style="clear:both"></div>
+        <p id="txtMessage" style="float:left;">@File</p>
+        <a id="deletebutton" style="float:left;@visible" href="#" class="material-icons grey-text text-darken-2">delete</a>
+        <div style="clear:both"></div>
+        @_WebMedicoHelpers.FileUploadProgressBar(ContainerId)
+        @_WebMedicoHelpers.CicularLoader(ContainerId)
+    </div>
+}
+
+@helper CicularLoader(string ContainerId)
+{
+    <div id="@ContainerId" style="width:100%;position:relative;opacity: 0.7;" align="center">
+        <br />
+        <div id="circularLoader"></div>
+    </div>
+    <script>
+        function CircularLoader() {
+            $('#@ContainerId #circularLoader').html($('#smallerloader').html());
+        }
+        function UnLoadCircularLoader() {
+            $('#@ContainerId #circularLoader').html('');
+        }
+    </script>
+}
+
+@helper ShowIMageFromString(string container, string imgid, string imagestr, int width)
+{
+    <img id="@imgid" src="@imagestr" alt="@imgid" width="@width" class="img-fluid rounded-circle" />
+}
+
+@helper FileDownloadControl(string href, string FileName)
+{
+    <a href="@href"
+       class="btn btn-primary btn-large waves-effect waves-light">
+        <i class="fa fa-download"></i>Descargar
+    </a>
+    <p>Ficheiro: @FileName</p>
+    <br />
+}
+
+@helper Enmascarar(IFarmacias.Models.Enums.ConsultationStatus estatus)
+{
+    <div>
+        @{
+            string estado = string.Empty;
+            switch (estatus)
+            {
+                //Status code: 1
+                case IFarmacias.Models.Enums.ConsultationStatus.Open:
+                    estado = "Aberto";
+                    break;
+                //Status code: 2
+                case IFarmacias.Models.Enums.ConsultationStatus.InProgress:
+                    estado = "Consulta em progresso";
+                    break;
+                //Status code: 3
+                case IFarmacias.Models.Enums.ConsultationStatus.Invoiced:
+                    estado = "Consulta concluída";
+                    break;
+                //Status code: 4
+                case IFarmacias.Models.Enums.ConsultationStatus.Scheduled:
+                    estado = "Consulta agendada";
+                    break;
+                //Status code: 5
+                case IFarmacias.Models.Enums.ConsultationStatus.Closed:
+                    estado = "Consulta concluida, foi solicitado o retorno";
+                    break;
+                //Status code: 6
+                case IFarmacias.Models.Enums.ConsultationStatus.KeepInvoiced:
+                    estado = "Aguarda retorno";
+                    break;
+                //Status code: 7
+                case IFarmacias.Models.Enums.ConsultationStatus.CanceledByPatient:
+                    estado = "Cancelado pelo paciente";
+                    break;
+                //Status code: 8
+                case IFarmacias.Models.Enums.ConsultationStatus.KeepConsultation:
+                    estado = "Aguarda retorno";
+                    break;
+                default:
+                    estado = "status desconhecido";
+                    break;
+            }
+        }
+        @estado
+    </div>
+
+}
+
+@helper FileUploadProgressBar(string ContainerId)
+{
+    <style>
+        @ContainerId #uploadfileform {
+            width: 56%;
+            height: 50%;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        @ContainerId #uploadfileprogress {
+            width: 40%;
+            height: 50%;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        @ContainerId #uploadfileresults {
+            width: 56%;
+            height: 45%;
+            position: absolute;
+            bottom: -340px;
+            left: 20px;
+        }
+
+        @ContainerId #uploadfileerrors {
+            width: 40%;
+            height: 45%;
+            position: absolute;
+            bottom: -340px;
+            right: 20px;
+        }
+
+        @ContainerId #legend_uploadfileform {
+            background-color: green;
+            padding: 0.2em 0.5em;
+            border: 2px solid green;
+            color: green;
+            font-size: 140%;
+            text-align: left;
+            font-weight: bolder;
+        }
+
+        @ContainerId div#uploadfileprogress fieldset.top div fieldset#file_name0 legend.progress {
+            background-color: green;
+            font-size: 80%;
+            color: white;
+            width: 0%
+        }
+
+        @ContainerId fieldset.top {
+            padding: 5px 10px;
+            border: 2px solid green;
+            -webkit-border-radius: 8px;
+            -moz-border-radius: 8px;
+            border-radius: 8px;
+            height: auto;
+        }
+
+        @ContainerId fieldset.bottom {
+            padding: 5px 10px;
+            border: 2px solid green;
+            -webkit-border-radius: 8px;
+            -moz-border-radius: 8px;
+            border-radius: 8px;
+            height: 260px;
+        }
+
+        @ContainerId legend.main {
+            padding: 0.2em 0.5em;
+            font-size: 100%;
+            text-align: left;
+        }
+
+        @ContainerId legend.progress {
+            font-size: 80%;
+        }
+
+        @ContainerId li.form {
+            padding: 5px 5px
+        }
+        @ContainerId #spin_circular {
+            width:80%;
+        }
+    </style>
+    <div id="uploadfilecontainer" style="display:none">
+        <div id="uploadfileprogress">
+            <fieldset class="top">
+                <legend class="main">Subir o Progresso</legend>
+                <div>
+                    <fieldset id="file_name0" style="height:auto;width:100%">
+                        <legend class="progress" style="width:100%;text-align:left;background:#FFBF00;"></legend>
+                        <ol style="list-style:none">
+                            <li>
+                                <div style="width:90%">
+                                    <div id="progressbar0" class="progressbar"></div>
+                                </div>
+                            </li>
+                        </ol>
+                    </fieldset>
+                </div>
+            </fieldset>
+        </div>
+        <div id="uploadfileresults">
+        </div>
+        <div id="uploadfileerrors">
+        </div>
+    </div>
+    <script>
+            UpdateFileResults = function (msg, append) {
+                if (append) {
+                    $('#@ContainerId #uploadfilecontainer #uploadfileresults').append(msg);
+                }
+                else {
+                    $('#@ContainerId #uploadfilecontainer #uploadfileresults').html(msg);
+                }
+            }
+            UpdateFileErrors = function (msg,append) {
+                if (append) {
+                    $('#@ContainerId #uploadfilecontainer #uploadfileerrors').append(msg);
+                }
+                else {
+                    $('#@ContainerId #uploadfilecontainer #uploadfileerrors').html(msg);
+                }
+            }
+            StartingUpload = function () {
+                $('#@ContainerId #uploadfilecontainer').fadeIn(100);
+            }
+            FinishingUpload = function () {
+                @*$('#@ContainerId #uploadfilecontainer').fadeOut(8000);*@
+            }
+            UpdateProgressBar = function (currentchunk, totalchunks) {
+                var percentage = Math.round((currentchunk / totalchunks) * 100);
+                $('#@ContainerId div#uploadfilecontainer div#uploadfileprogress fieldset.top div fieldset#file_name0 legend.progress').css({ 'width': percentage + '%' });
+            }
+    </script>
+}
+
+@helper ModalLoading()
+{
+<div class="modal hide" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false"><div class="modal-body"><div class="loader-default"></div></div></div>
+}

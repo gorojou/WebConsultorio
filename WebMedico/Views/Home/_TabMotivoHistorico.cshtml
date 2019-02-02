@@ -1,0 +1,27 @@
+﻿@model IFarmacias.Models.PatientHistoryInfoResponse
+<div class="col-12">
+    <table class="table no-header table-fixed">
+        <tbody>
+            <tr>
+                <td style="width:80px;">Médico</td>
+                <td>@Model.MedicName</td>
+            </tr>
+            <tr>
+                <td>Motivo</td>
+                <td>@Model.Description</td>
+            </tr>
+            <tr>
+                <td>Data</td>
+                <td>
+                    @Model.Date
+                </td>
+            </tr>
+            <tr>
+                <td>Estado</td>
+                <td>
+                    @Model.Status
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,697 @@
+﻿@using System.Configuration
+@using WebMedico.Models
+@using WebMedico.Helpers
+@model WebMedico.Models.DoctorViewModel
+@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+@_WebMedicoFormsHelpers.FormValidationStyles()
+<br />
+<!-- Modal Register -->
+<div class="modal fade" id="modalRegister" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <h3><strong>@ResourcesAccount.ConfirmRegister</strong></h3>
+            </div>
+
+            <!--Body-->
+            <div class="modal-body">
+                <p class="black-54"></p>
+            </div>
+
+            <!--Footer-->
+            <div class="modal-footer">
+                <button type="button" onclick="redirect()" class="btn-flat waves-effect pink-text" data-dismiss="modal">@ResourcesAccount.Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal Register -->
+<!-- Modal No Register -->
+<div class="modal fade" id="modalNoRegister" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <!--Header-->
+            <div class="modal-header">
+                <h3 id="messageBoxTittle"><strong></strong></h3>
+            </div>
+
+            <!--Body-->
+            <div class="modal-body">
+                <p id="messageBoxContent" class="black-54"></p>
+            </div>
+
+            <!--Footer-->
+            <div class="modal-footer">
+                <a type="button" href="#" class="btn-flat waves-effect pink-text text-lighten-1" data-dismiss="modal">@ResourcesAccount.Understood</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal No Register -->
+<div class="row justify-content-md-center mdbc-register">
+    <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="card">
+            <div class="card-block no-padding-bottom">
+                <div class="avatar text-center">
+                    <img src="~/Content/Images/logo.png" alt="logo" width="100" height="100" class="mx-auto d-block" />
+                </div>
+                <br />
+                <h3 class="text-center grey-text">@ResourcesAccount.medicoscc</h3>
+                @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { role = "form", @class = "formvalidate", @id = "formvalidate" }))
+                {
+                    @Html.AntiForgeryToken()
+                    if (ViewData.ModelState.Values.Any() && ViewData.ModelState["NoRegistrado"]?.Errors?.Count > 0)
+                    {
+                        <script type="text/javascript">
+                            window.onload = function () {
+                                var modal = $('#modalRegister');
+                                modal.find('.modal-body p').text("Existiu um problema com a submissão do seu registo. Por favor envie um email para info@medicos.cc");
+                                $('#modalRegister').modal();
+                            };
+                        </script>
+                    }
+                    if (ViewData.ModelState.Values.Any() && ViewData.ModelState["Registrado"]?.Errors?.Count > 0)
+                    {
+                        <script type="text/javascript">
+                            window.onload = function () {
+                                var modal = $('#modalRegister');
+                                modal.find('.modal-body p').text("O seu registo foi recebido com sucesso! A nossa equipa irá analisar o seu pedido e entrará em contato. Este processo pode levar alguns dias uteis.");
+                                $('#modalRegister').modal();
+
+                            };
+
+                            function fnRedirect(jQuery) {
+                                $(location).attr('href', 'Login');
+                            }
+                        </script>
+                    }
+                    <ul class="nav nav-tabs tabs-4 blue" style="visibility:hidden;height:0;" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#panel1" role="tab">@ResourcesAccount.Step1</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#panel2" role="tab">@ResourcesAccount.Step2</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#panel3" role="tab">@ResourcesAccount.Step3</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content no-padding-bottom padding-top-dense">
+                        <!--Panel 1-->
+                        <div class="tab-pane fade in show active" id="panel1" role="tabpanel">
+                            <!--Profile Photo-->
+                            <div class="row">
+                                @_WebMedicoFormsHelpers.ImageCropper(ViewBag._urlTargetBase, "ImgContainer", "PHOTO", @ResourcesAccount.Add, @ResourcesAccount.croptitle, @ResourcesAccount.cropinstructions, @ResourcesAccount.croperror, ResourcesAccount.crop)
+                                <!--<div class="col-3 mdbc-pickphoto" align="center">
+                                    <input type="file" name="fileUploaderControl" id="fileUploaderControl" style="display:none;">
+                                    <img id="ImgUpload" name="ImgUpload" src="~/Content/Images/default-userimg.jpg" style="width:85%;">
+                                    @Html.TextBoxFor(m => m.PHOTO,new { @id = "PHOTO", @class = "form-control validate" })
+                                    <button type="button" class="btn btn-pink btn-sm waves-effect waves-light">
+                                        <i class="fa fa-camera"></i> @ResourcesAccount.Add
+                                    </button>
+                                </div>
+                                -->
+                                <div class="col-9">
+                                    @Html.TexboxBlockFor(m => m.NAME, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate justTextField" } })
+                                    @Html.TexboxBlockFor(m => m.LASTNAME, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate justTextField" } })
+                                </div>
+                            </div>
+                            @Html.TexboxBlockFor(m => m.EMAIL, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">email</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" }, { HtmlAttributesPossibleConfigurationValues.textboxtype, "email" } })
+                            @Html.PasswordBlockFor(m => m.PASSWORD, false, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">vpn_key</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validar_clave" }, { HtmlAttributesPossibleConfigurationValues.textboxtype, "password" } })
+                            @Html.PasswordBlockFor(m => m.ConfirmPassword, false, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">vpn_key</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validar_clave" }, { HtmlAttributesPossibleConfigurationValues.textboxtype, "password" }, { HtmlAttributesPossibleConfigurationValues.onfocusout, "comparePw();" } })
+                            <div class="text-right row">
+                                <div class="col">
+                                    <div class="text-left">
+                                        <div class="md-form no-margin-bottom">
+                                            <a href="~/Home/Index" class="btn btn-danger waves-effect waves-light">@ResourcesAccount.Cancel</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-right">
+                                        <div class="md-form">
+                                            <a href="#"><i class="avancePagina material-icons material-icons-48">navigate_next</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Panel 2-->
+                        <div class="tab-pane fade" id="panel2" role="tabpanel">
+                            <div class="md-form">
+                                <i class="fa fa-user-md prefix black-54"></i>
+                                @Html.DropDownListFor(m => m.ID_COUNTRY, Enumerable.Empty<SelectListItem>(), ResourcesAccount.Loading, new { @id = "ID_COUNTRY", @class = "mdb-select dropdown-left-icon" })
+                                @Html.Label(ResourcesAccount.Country, new { @class = "" })
+                            </div>
+                            <div class="md-form">
+                                <i class="fa material-icons prefix black-54">wc</i>
+                                @Html.DropDownListFor(m => m.GENDER, new SelectList(new List<Object> { new { value = "M", text = ResourcesAccount.Male }, new { value = "F", text = ResourcesAccount.Female } }, "value", "text"), new { @id = "GENDER", @class = "mdb-select dropdown-left-icon" })
+                                @Html.Label(ResourcesAccount.Gender, new { @class = "" })
+                            </div>
+                            @Html.TexboxBlockFor(m => m.ORDER_NUMBER, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\"><strong>&nbsp;#</strong></i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" } })
+                            <div class="md-form">
+                                <i class="fa fa-stethoscope prefix black-54"></i>
+                                @Html.DropDownListFor(m => m.SPECIALTY, new SelectList(ViewBag.cmbEspecialidad, "text", "text"), new { @id = "SPECIALTY", @class = "mdb-select dropdown-left-icon" })
+                                @Html.Label(ResourcesAccount.Specialty, new { @class = "" })
+                            </div>
+                            @Html.DateTimeBlockFor(m => m.INIT_DATE_CAREER, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">date_range</i>" }, { HtmlAttributesPossibleConfigurationValues.labeltext, ResourcesAccount.InitDateCareer } })
+                            <div class="row">
+                                <div class="col">
+                                    <div class="text-left">
+                                        <div class="md-form">
+                                            <a href="#" onclick="previous();"><i class="material-icons material-icons-48">navigate_before</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-right">
+                                        <div class="md-form">
+                                            <a href="#" onclick="next();"><i class="avancePagina material-icons material-icons-48 ">navigate_next</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Panel 3-->
+                        <div class="tab-pane fade" id="panel3" role="tabpanel">
+                            @Html.DateTimeBlockFor(m => m.BIRTH_DATE, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">date_range</i>" }, { HtmlAttributesPossibleConfigurationValues.labeltext, ResourcesAccount.DateofBirth } })
+                            <div class="md-form">
+                                <i class="fa material-icons prefix black-54">translate</i>
+                                @Html.DropDownListFor(m => m.LANGUAGES, Enumerable.Empty<SelectListItem>(), ResourcesAccount.Loading, new { @id = "LANGUAGES", @class = "mdb-select dropdown-left-icon validate", @multiple = "", @required = "" })
+                                @Html.Label(ResourcesAccount.Languages, new { @class = "" })
+                            </div>
+                            @Html.TexboxBlockFor(m => m.TAXPAYER, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">insert_drive_file</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" }, { HtmlAttributesPossibleConfigurationValues.onkeypress, "return isNumberKey(event);" } })
+                            @Html.TexboxBlockFor(m => m.ADDRESS, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">place</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" } })
+                            @Html.TexboxBlockFor(m => m.LOCALITY, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\"></i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" } })
+                            @Html.TexboxBlockFor(m => m.ZIPCODE, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\"></i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" } })
+                            @Html.TexboxBlockFor(m => m.MOBILE_NUMBER, new Dictionary<HtmlAttributesPossibleConfigurationValues, string>() { { HtmlAttributesPossibleConfigurationValues.iprefix, "<i class=\"fa material-icons prefix black-54\">stay_primary_portrait</i>" }, { HtmlAttributesPossibleConfigurationValues.texboxclass, "validate" } })
+                            <div class="row" id="circularloadercontainer">
+                                @_WebMedicoFormsHelpers.SubmitWithCircularLoader("circularloadercontainer", "formvalidate")
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="text-left">
+                                        <div class="md-form">
+                                            <a href="#" onclick="previous();"><i class="material-icons material-icons-48">navigate_before</i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-right">
+                                        <div class="md-form no-margin-bottom">
+                                            <button type="button" onclick="nextRegistar();" class="btn btn-primary ">@ResourcesAccount.Register</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function triggervalidationactivetab() {
+        $('.tab-pane.active input').each(function () {
+            try {
+                $('#formvalidate').data('validator').element('#' + $(this).attr('id'));
+            }
+            catch (err) {
+                /*Nothing*/
+            }
+        });
+    }
+
+    function next() {
+        triggervalidationactivetab();
+        var invalid = $('.tab-pane.active .form-control').filter(function (index) {
+            return $(this).val() === '' || $(this).hasClass('invalid');
+        }).length > 0;
+        if (!invalid) {
+            var tabs = $('.nav-tabs');
+            var currentTab = $(tabs).find('li > a.active');
+            $(currentTab).parent().next('li').find('a').trigger('click');
+        } else {
+
+        }
+        return invalid;
+    }
+
+    function nextRegistar() {
+        //alert('nextRegistrar');
+        //return;
+        triggervalidationactivetab();
+        var char = ", ";
+        var msgText = "";
+        var strFinal = "";
+        var curr_date = "";
+        var curr_month = "";
+        var curr_year = "";
+        var d = new Date();
+        var counter = 0;
+        var varEmpty = false;
+        if ($('#BIRTH_DATE').val().trim() != "") {
+            d = new Date($('#BIRTH_DATE').val());
+
+            curr_date = d.getDate();
+            curr_month = d.getMonth() + 1; //Months are zero based
+            curr_year = d.getFullYear();
+
+            strFinal = curr_year + "-" + curr_month + "-" + curr_date;
+        }
+        else {
+            strFinal = "";
+        }
+
+        var elementos = strFinal + "|" + $('#LANGUAGES').val() + "|" + $('#TAXPAYER').val() + "|" + $('#ADDRESS').val() + "|" +
+            $('#LOCALITY').val() + "|" + $('#ZIPCODE').val() + "|" + $('#MOBILE_NUMBER').val();
+
+        var res = elementos.split("|");
+
+        for (var i = 0; i < res.length; i++) {
+
+            varEmpty = false;
+
+            char = "";
+
+            if (res[i].trim() == "") {
+                varEmpty = true;
+
+                counter++;
+
+                if (counter > 1) {
+                    char = ", ";
+                }
+            }
+
+            msgText += char;
+
+            switch (i) {
+
+                case 0:
+                    if (varEmpty) {
+                        msgText +=   "@ResourcesAccount.DateofBirth";
+                    }
+                    break;
+
+                case 1:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.Languages";
+                    }
+                    break;
+
+                case 2:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.TaxPayer";
+                    }
+                    break;
+
+                case 3:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.Address";
+                    }
+                    break;
+
+                case 4:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.Locality";
+                    }
+                    break;
+
+                case 5:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.ZipCode";
+                    }
+                    break;
+
+                case 6:
+                    if (varEmpty) {
+                        msgText += "@ResourcesAccount.Mobile_Number";
+                    }
+                    break;
+            }
+        }
+        if (msgText != "") {
+            displayMessage("@ResourcesAccount.Alert", "@ResourcesAccount.CompleteFields" + msgText);
+            return;
+        }
+        else {
+            $("#formvalidate").submit();
+        }
+    }
+
+    function previous() {
+        var tabs = $('.nav-tabs');
+        var currentTab = $(tabs).find('li > a.active');
+        $(currentTab).parent().prev('li').find('a').trigger('click');
+    }
+
+    function redirect() {
+        $(location).attr('href', 'Login');
+    }
+
+    function prueba() {
+        alert("prueba");
+    }
+
+    function validateNIF(nif) {
+
+        if (nif.length == 9) {
+            added = ((nif[7] * 2) + (nif[6] * 3) + (nif[5] * 4) + (nif[4] * 5) + (nif[3] * 6) + (nif[2] * 7) + (nif[1] * 8) + (nif[0] * 9));
+            mod = added % 11;
+            if (mod == 0 || mod == 1) {
+                control = 0;
+            } else {
+                control = 11 - mod;
+            }
+
+            if (nif[8] == control) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function comparePw() {
+        $('input[name=PASSWORD], input[name=ConfirmPassword]').on('change', function () {
+            var password = $('input[name=PASSWORD]'),
+                repassword = $('input[name=ConfirmPassword]'),
+                both = password.add(repassword).removeClass('has-success has-error');
+
+            password.addClass(
+                password.val().length > 0 ? 'has-success' : 'has-error'
+            );
+            repassword.addClass(
+                password.val().length > 0 ? 'has-success' : 'has-error'
+            );
+
+            if (password.val() != repassword.val()) {
+                both.addClass('has-error');
+            }
+        });
+    }
+</script>
+
+<script type="text/javascript">
+    /*
+    $(document).ready(function () {
+        $('#PHOTO').hide();
+    });
+
+    //Hooking the click of the fileupload control with Image.
+    $(document).ready(function () {
+        $('.mdbc-pickphoto button').click(function () {
+            $('.mdbc-pickphoto input[type=file]').click();
+        });
+    });
+
+    //Using FileReader to convert the image as dataurl.
+    $(document).ready(function () {
+        $(".mdbc-pickphoto input[type=file]").change(function () {
+            var file = this.files[0];
+            var readImg = new FileReader();
+            readImg.readAsDataURL(file);
+            readImg.onload = function (e) {
+                $('.mdbc-pickphoto img').attr('src', e.target.result);
+                //Pass base64 to model
+                var src = $('#ImgUpload').attr('src');
+                $('#PHOTO').val(src);
+                ImageCrop();
+            }
+        });
+    });
+    */
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        // Validate form (Return boolean)
+        $('#form-validation-test1-submit').on('click', function (e) {
+            var result = EqUI.forms.validate_form($('#form-validation-test1'));
+            console.log(result);
+        });
+
+        // Validate field (Return boolean)
+        $('#form-validation-test1-submit').on('click', function (e) {
+            var result = EqUI.forms.validate_field($('#username-test1'));
+            console.log(result);
+        });
+
+    });
+</script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        // Put only text element in field
+
+        $(function onlyText() {
+            $('.justTextField').on('keypress', function (e) {
+                var reg = /[a-zA-Z\s\A-zÀ-ú\A-zÀ-ÿ]+/;
+                if (!reg.test(String.fromCharCode(e.which))) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        getAvailableLanguages('@ConfigurationManager.AppSettings["ApiUrl"]');
+
+        getAvailableNationalities('@ConfigurationManager.AppSettings["ApiUrl"]');
+
+        $('#PASSWORD').keyup(function () {
+            var _this = $('#PASSWORD');
+            var pass_1 = $('#PASSWORD').val();
+            _this.attr('style', 'background:white');
+            if (pass_1.charAt(0) == '') {
+                //_this.attr('style', 'background:#FF4A4A');
+            }
+
+            if (_this.val() == '') {
+                //_this.attr('style', 'background:#F44336');
+                _this.addClass("invalid");
+            } else {
+                _this.removeClass("invalid");
+            }
+        });
+
+        $('#ConfirmPassword').keyup(function () {
+            var pass_1 = $('#PASSWORD').val();
+            var pass_2 = $('#ConfirmPassword').val();
+            var _this = $('#ConfirmPassword');
+            _this.attr('style', 'background:white');
+            if (pass_1 != pass_2 && pass_2 != '') {
+                _this.addClass("invalid");
+                //_this.attr('style', 'background:#F44336');
+            } else {
+                _this.removeClass("invalid");
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $('.avancePagina').click(function () {
+            if (next()) {
+                var notValidField = $('.tab-pane.active .form-control').filter(function (index) {
+                    return $(this).val() === '' || $(this).hasClass('invalid');
+                });
+
+                var texto = "";
+
+                for (var i = 0; i < notValidField.length; i++) {
+
+                    var elementId = notValidField[i].id
+
+                    if (!(i == notValidField.length) && (i >0) ){
+                        texto += ", ";
+                    }
+
+                    switch (elementId) {
+                        case "PHOTO":
+                            texto += "\n" +  "@ResourcesAccount.Photo";
+                            break;
+                        case "NAME":
+                            texto += "\n" +  "@ResourcesAccount.Name";
+                            break;
+                        case "LASTNAME":
+                            texto += "@ResourcesAccount.LastName";
+                            break;
+                        case "EMAIL":
+                            texto += "@ResourcesAccount.Email";
+                            break;
+                        case "PASSWORD":
+                            texto += "@ResourcesAccount.Password";
+                            break;
+                        case "ConfirmPassword":
+                            texto += "@ResourcesAccount.ComparePassword";
+                            break;
+                        case "ORDER_NUMBER":
+                            texto += "@ResourcesAccount.OrderNumber";
+                            break;
+                        case "SPECIALTY":
+                            texto += "@ResourcesAccount.Specialty";
+                            break;
+                        case "INIT_DATE_CAREER":
+                            texto += "@ResourcesAccount.InitDateCareer";
+                            break;
+                        case "BIRTH_DATE":
+                            texto += "@ResourcesAccount.DateofBirth";
+                            break;
+                        case "LANGUAGES":
+                            texto += "@ResourcesAccount.Languages";
+                            break;
+                        case "TAXPAYER":
+                            texto += "@ResourcesAccount.TaxPayer";
+                            break;
+                        case "ADDRESS":
+                            texto += "@ResourcesAccount.Address";
+                            break;
+                        case "LOCALITY":
+                            texto += "@ResourcesAccount.Locality";
+                            break;
+                        case "ZIPCODE":
+                            texto += "@ResourcesAccount.ZipCode";
+                            break;
+                        case "MOBILE_NUMBER":
+                            texto += "@ResourcesAccount.Mobile_Number";
+                            break;
+                    }
+
+                }
+
+                displayMessage("@ResourcesAccount.Alert","@ResourcesAccount.CompleteFields" + texto);
+            };
+        });
+
+    });
+
+    function displayMessage(titulo, contenido) {
+        $('#messageBoxTittle').text(titulo);
+        $('#messageBoxContent').html (contenido);
+        $('#modalNoRegister').modal('show');
+    }
+
+    function getAvailableLanguages(baseUrl) {
+
+    var ddl = $('#LANGUAGES');
+    ddl.empty();
+
+        $.ajax({
+            url: baseUrl+"/api/Idioms",
+            async: true,
+            type: 'get',
+            dataType: 'json',
+            crossDomain: true,
+            success: function (data) {
+                processDataAvailableLanguages(data,ddl)
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+
+    }
+
+    function processDataAvailableLanguages(data,ddl){
+
+     //criar primeiro elemento a vazio
+     $(document.createElement('option'))
+                .attr('value', "")
+                .attr('disabled', "")
+                .attr('selected',"")
+                .text("Escolha os seus idiomas")
+                .appendTo(ddl);
+
+     $.each(data, function(index, item) {
+            $(document.createElement('option'))
+                .attr('value', item.IdIdiom)
+                .text(item.Idiom)
+                .appendTo(ddl);
+        });
+
+    $(ddl).material_select();
+
+    }
+
+    function getAvailableNationalities(baseUrl) {
+
+    var ddl = $('#ID_COUNTRY');
+    ddl.empty();
+
+        $.ajax({
+            url: baseUrl+"/api/Country",
+            async: true,
+            type: 'get',
+            dataType: 'json',
+            crossDomain: true,
+            success: function (data) {
+                processDataAvailableNationalities(data,ddl)
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+
+    }
+
+    function processDataAvailableNationalities(data,ddl){
+
+     $.each(data, function(index, item) {
+            $(document.createElement('option'))
+                .attr('value', item.Id)
+                .text(item.Name)
+                .appendTo(ddl);
+        });
+
+    $(ddl).material_select();
+
+    }
+
+    function isNumberKey(evt){
+    var response;
+
+    var charCode = (evt.which) ? evt.which : event.keyCode
+
+    if (charCode > 31 && (charCode < 48 || charCode > 57)){
+
+           response = false;
+
+    }else{
+           response = true;
+    }
+
+    return response;
+
+}
+</script>
+
+<script>
+    // removes a class "classToRemove" to an element if that class is present
+    function removeClass(element, classToRemove) {
+        var classesString;
+        classesString = element.className || "";
+        if (classesString.indexOf(classToRemove) !== -1) {
+            // classToRemove is present
+            element.className = element.className.replace(new RegExp('(?:^|\\s)' + classToRemove + '(?:\\s|$)'), ' '); // from http://stackoverflow.com/a/2155786
+        }
+    }
+</script>
+
+@section Scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}`
